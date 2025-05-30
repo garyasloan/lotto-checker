@@ -1,12 +1,12 @@
 using API.Data;
+using API.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var connStr = builder.Configuration.GetConnectionString("Default");
@@ -18,6 +18,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         sql.EnableRetryOnFailure();      // Retry on transient failures
     }));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowClient", policy =>
+    {
+        policy.WithOrigins(
+                "https://localhost:5173"
+            )
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -26,16 +37,10 @@ var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 var pending = dbContext.Database.GetPendingMigrations();
 dbContext.Database.Migrate();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-app.UseHttpsRedirection();
-
+app.UseCors("AllowClient");
+app.UseStaticFiles();
 app.UseAuthorization();
-
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();

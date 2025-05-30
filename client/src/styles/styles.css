@@ -1,0 +1,114 @@
+/* Start winning numbers rendered as colored/checked balls */
+.grid-ball {
+    height: 2.7em;
+    width: 2.7em;
+    line-height: 2.7em;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    text-align: center;
+    color: #111111;
+    font-size: 1.2em;
+    font-weight: 700;
+    margin: .3em;
+    cursor: default;
+    z-index: 1
+}
+
+.grid-ball--superlotto-secondary--matched {
+    box-sizing: border-box;
+    border: 2px solid rgba(17, 17, 17, .6)
+}
+
+.grid-ball--superlotto-secondary--checked {
+    background-color: #FFFFFE
+}
+
+.grid-ball--superlotto-secondary--checked {
+    position: relative
+}
+
+
+.grid-ball--superlotto-secondary--checked:after {
+    /*content: "\e91e";*/
+    content: '✓';
+    font: 1em/1 illi-icons-regular;
+    color: white;
+    position: absolute;
+    top: -3px;
+    width: 1em;
+    right: -3px;
+    z-index: 1;
+    background-color: #0c884d;
+    border-radius: 50%
+}
+
+.grid-ball--superlotto-primary--unmatched {
+    border: 2px solid #eeeeee;
+    box-sizing: border-box;
+    color: #111111;
+    background-color: #eeeeee
+}
+
+.grid-ball--superlotto-secondary--unmatched {
+    border: 2px solid #eeeeee;
+    box-sizing: border-box;
+    color: black;
+    background-color: #eedeca
+}
+
+.grid-ball--superlotto-primary--matched,
+.grid-ball--superlotto-primary--selected {
+    overflow: visible;
+    position: relative;
+    box-sizing: border-box;
+    color: Black
+}
+
+.grid-ball--superlotto-primary--matched {
+    border: 2px solid rgba(17, 17, 17, .6)
+}
+
+.grid-ball--superlotto-primary--matched,
+.grid-ball--superlotto-primary--matched:before,
+.grid-ball--superlotto-primary--selected,
+.grid-ball--superlotto-primary--selected:before {
+    background-color: #FFA500
+}
+
+.grid-ball--superlotto-primary--checked:after {
+    /*content: "\e91e";*/
+    content: '✓';
+    font: 1em/1 illi-icons-regular;
+    color: white;
+    position: absolute;
+    top: -3px;
+    width: 1em;
+    right: -3px;
+    z-index: 1;
+    background-color: #0c884d;
+    border-radius: 50%
+}
+
+/* End winning numbers rendered as colored/checked balls */
+
+/* Start orange header in pick grid for mega number*/
+.mega-column-header {
+    color: orange;
+    font-weight: bold;
+}
+
+/* End orange header in pick grid for mega number*/
+
+/* Always show vertical scrollbar */
+html {
+    overflow-y: scroll;
+}
+
+.editing-row {
+  background-color: rgba(173, 216, 230, 0.4) !important;
+}
+
+.not-editing-row {
+  background-color: rgba(255, 255, 255, 0) !important;
+}
+
