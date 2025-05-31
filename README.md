@@ -8,3 +8,17 @@ This repository contains code for the lotto-checker.com website that allows you 
 ### Who do I talk to? ###
 
 gary@techie-mail.com
+
+If you want to clone this repo and run this project locally then after you clone, create the file appsettings.Development.json in the Api folder with this content:
+
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "Default": "Server=YourDBServer;Database=LottoChecker;Trusted_Connection=True;TrustServerCertificate=True;User=YourSqlServerUser; Password=YourSqlServerPassword"
+  }
+}
