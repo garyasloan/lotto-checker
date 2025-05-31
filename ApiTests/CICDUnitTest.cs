@@ -18,7 +18,7 @@ namespace ApiTests
 
         if (pacificNow >= new TimeSpan(19, 0, 0) && pacificNow <= new TimeSpan(19, 15, 0))
         {
-            Assert.True(false, $"Failing test: It's between 7:00 PM and 7:15 PM PDT. Time now: {pacificNow}");
+            Assert.Fail($"Failing test: It's between 7:00 PM and 7:15 PM PDT. Time now: {pacificNow}");
         }
 
         Assert.True(true);
