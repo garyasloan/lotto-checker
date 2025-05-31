@@ -48,7 +48,7 @@ const About: React.FC = () => {
         <h2 className="text-3xl font-semibold mb-4 text-center">Website Description</h2>
         <p className="text-xl text-justify">
           Allows you to enter and save your super lotto picks and displays which draws resulted in
-          cash prizes. <strong>The site was primarily built to showcase my technical work to prospective employers</strong>.
+          cash prizes for you. <strong>The site was primarily built to showcase my technical work to prospective employers</strong>.
         </p>
       </section>
 

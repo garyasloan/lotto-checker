@@ -23,6 +23,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowClient", policy =>
     {
         policy.WithOrigins(
+                "https://www.lotto-checker.com",
+                "https://lotto-checker-app.wittyglacier-91c7b4e8.westus2.azurecontainerapps.io",
                 "https://localhost:5173"
             )
               .AllowAnyHeader()
