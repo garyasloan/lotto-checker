@@ -1,0 +1,77 @@
+name: Build and Deploy to Azure Container Apps
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: ghcr.io/garyasloan/lotto-checker:latest
+  RESOURCE_GROUP: GaryResourceGroup
+  CONTAINER_APP: lotto-checker-app
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Confirm structure
+      - name: Confirm repo structure
+        run: |
+          echo "::group::Checked-out repo contents"
+          ls -la
+          echo "::endgroup::"
+          if [ ! -f "Api/Api.csproj" ]; then
+            echo "Api.csproj not found at expected path"
+            exit 1
+          fi
+      # 3. Setup .NET
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.106'
+
+      # 4. Restore and build
+      - name: Restore and Build
+        run: |
+          dotnet restore lotto-checker.sln
+          dotnet build lotto-checker.sln --configuration Release
+      # 5. Run tests
+      - name: Run Unit Tests
+        run: dotnet test lotto-checker.sln --configuration Release --no-build
+
+      # 6. GHCR Login
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u garyasloan --password-stdin
+
+      # 7. Build Docker image
+      - name: Build Docker image
+        run: docker build -t ${{ env.IMAGE_NAME }} .
+
+      # 8. Push Docker image
+      - name: Push Docker image
+        run: docker push ${{ env.IMAGE_NAME }}
+
+      # 9. Azure login
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 10. Deploy to Azure Container App
+      - name: Update Azure Container App
+        run: |
+          az containerapp update \
+            --name ${{ env.CONTAINER_APP }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.IMAGE_NAME }} \
+            --set-env-vars "FORCE_RESTART=$(date -Iseconds)"
