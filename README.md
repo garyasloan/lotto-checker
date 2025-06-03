@@ -20,7 +20,7 @@ If you want to clone this repo and run this project locally then after you clone
     }
   },
   "ConnectionStrings": {
-    "Default": "Server=YourDBServer;Database=LottoChecker;Trusted_Connection=True;TrustServerCertificate=True;User=YourSqlServerUser; Password=YourSqlServerPassword"
+    "Default": "Server=YourDBServer;Database=LottoChecker;Trusted_Connection=True;TrustServerCertificate=True;User=YourSqlServerUser;Password=YourSqlServerPassword"
   }
 }
 ```
