@@ -3,24 +3,29 @@ import { createBrowserRouter, Navigate } from "react-router-dom"; // ← make su
 import App from "../App";
 import WinningPicks from "../../features/winningPicks/WinningPicks";
 import About from "../../features/about/About";
-import ErrorPage from "../../pages/ErrorPage"; 
+import ErrorPage from "../../pages/ErrorPage";
+import PowerBIReport from "../../components/PowerBI"
 
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
-    errorElement: <ErrorPage />, 
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <Navigate to="super-lotto" replace /> },
       {
         path: 'super-lotto',
         element: <WinningPicks />,
-        errorElement: <ErrorPage /> 
+        errorElement: <ErrorPage />
       },
       {
         path: 'about',
         element: <About />,
         errorElement: <ErrorPage />
+      },
+      {
+        path: 'powerbi-report',
+        element: <PowerBIReport />,
       }
     ]
   }
