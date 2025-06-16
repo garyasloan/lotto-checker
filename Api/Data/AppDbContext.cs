@@ -37,10 +37,13 @@ namespace API.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<SuperLottoWinningNumberDTO>()
-                .HasNoKey()
-                .ToView(null);
+            base.OnModelCreating(modelBuilder);
 
+            // Register DTOs as keyless (stored proc resultsets)
+            modelBuilder.Entity<NumberOccurrenceDTO>().ToView(null);
+            modelBuilder.Entity<SuperLottoWinningNumberDTO>().HasNoKey().ToView(null);
+
+            // Define SuperLottoUserPick
             modelBuilder.Entity<SuperLottoUserPick>(entity =>
             {
                 entity.Property(e => e.Id).HasDefaultValueSql("(newsequentialid())");
@@ -48,6 +51,7 @@ namespace API.Data
                 entity.Property(e => e.DateAdded).HasDefaultValueSql("GETDATE()").ValueGeneratedOnAdd();
             });
 
+            // Define SuperLottoWinningNumber
             modelBuilder.Entity<SuperLottoWinningNumber>(entity =>
             {
                 entity.Property(e => e.DrawNumber).ValueGeneratedNever();
@@ -55,7 +59,6 @@ namespace API.Data
 
             OnModelCreatingPartial(modelBuilder);
         }
-
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

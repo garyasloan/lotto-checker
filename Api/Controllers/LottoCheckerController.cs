@@ -2,9 +2,41 @@ using API.Data;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace API.Controllers
 {
+
+    [Route("odata/[controller]")]
+    public class NumberOccurrencesController : ODataController
+    {
+        private readonly AppDbContext _context;
+
+        public NumberOccurrencesController(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        [EnableQuery]
+        public IActionResult Get()
+        {
+            try
+            {
+                var result = _context.Set<NumberOccurrenceDTO>()
+                    .FromSqlRaw("EXEC LottoChecker.dbo.GetNumberOccurrences")
+                    .AsNoTracking()
+                    .ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+    }
     [Route("api/[controller]")]
     [ApiController]
     public class LottoCheckerController : ControllerBase

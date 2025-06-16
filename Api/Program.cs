@@ -1,12 +1,18 @@
 using API.Data;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.SqlClient;
+using Microsoft.OData.Edm;
+using Microsoft.OData.ModelBuilder;
+using Microsoft.AspNetCore.OData;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddOData(opt =>
+        opt.Select().Filter().OrderBy().Expand().Count().SetMaxTop(100)
+            .AddRouteComponents("odata", GetEdmModel()));
+
 builder.Services.AddOpenApi();
 
 var connStr = builder.Configuration.GetConnectionString("Default");
@@ -46,3 +52,10 @@ app.MapControllers();
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+static IEdmModel GetEdmModel()
+{
+    var builder = new ODataConventionModelBuilder();
+    builder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
+    return builder.GetEdmModel();
+}
