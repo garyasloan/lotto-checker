@@ -2,25 +2,15 @@ import React from 'react';
 
 const PowerBIReport: React.FC = () => {
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      margin: 0,
-      padding: 0,
-      zIndex: 9999,
-      backgroundColor: 'white'
-    }}>
+    <div style={{ width: '100%', height: '100%', padding: '1rem' }}>
       <iframe
         title="WinningNumbers"
-        src="https://app.powerbi.com/view?r=eyJrIjoiODY2ZDViNzQtODNlNi00YjQ1LTlhMmYtZmM0NGVlM2E4ZjFmIiwidCI6ImQwY2U2YjEwLTcxMjctNGEyYi1iMWZmLTdlMjQ1MzI1MTFmYSJ9"
+        src="https://app.powerbi.com/view?r=eyJrIjoiN2I2NTJkYTAtZDNiNC00NzIyLTk3YjQtZTI0NzBiMmU5NWY4IiwidCI6ImQwY2U2YjEwLTcxMjctNGEyYi1iMWZmLTdlMjQ1MzI1MTFmYSJ9"
         frameBorder="0"
         allowFullScreen
         style={{
           width: '100%',
-          height: '100%',
+          height: '80vh',
           border: 'none'
         }}
       ></iframe>
@@ -28,4 +18,4 @@ const PowerBIReport: React.FC = () => {
   );
 };
 
- export default PowerBIReport;
+export default PowerBIReport;
