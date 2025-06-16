@@ -35,6 +35,9 @@ const About: React.FC = () => {
           </li>
 
           <li style={{ marginBottom: "0.5rem" }}>
+            <strong>Power BI</strong> using Power Query (M language and Azure SQL Server)
+          </li>
+          <li style={{ marginBottom: "0.5rem" }}>
             Developed as a <strong>Docker container image</strong> using <strong>Docker Desktop</strong>
           </li>
           <li style={{ marginBottom: "0.5rem" }}>

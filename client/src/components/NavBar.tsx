@@ -66,6 +66,11 @@ export default function NavBar() {
                   <MenuItem onClick={handleMenuClose} component={NavLink} to="/super-lotto">
                     Super Lotto
                   </MenuItem>
+
+                  <MenuItem onClick={handleMenuClose} component={NavLink} to="/powerBI-Report">
+                    Mega Ball Occurrence
+                  </MenuItem>
+
                   <MenuItem onClick={handleMenuClose} component={NavLink} to="/about">
                     About
                   </MenuItem>
@@ -74,6 +79,7 @@ export default function NavBar() {
             ) : (
               <Box sx={{ display: "flex", gap: 2 }}>
                 <MenuItemLink to="/super-lotto">Super Lotto</MenuItemLink>
+                <MenuItemLink to="/PowerBI-Report">Mega Ball Occurrence (Power BI)</MenuItemLink>
                 <MenuItemLink to="/about">About</MenuItemLink>
               </Box>
             )}
