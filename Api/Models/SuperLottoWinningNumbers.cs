@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Models;
 
@@ -40,4 +42,12 @@ public class SuperLottoWinningNumberDTO
     public int MegaPick { get; set; }
     public int MatchedNumberMega { get; set; }
     public long PrizeAmount { get; set; }
+}
+
+[NotMapped]
+public class NumberOccurrenceDTO
+{
+    [Key]
+    public int Label { get; set; }
+    public int Count { get; set; }
 }
