@@ -107,8 +107,8 @@ app.Use(async (context, next) =>
     }
 });
 
-// ✅ NEW endpoint for Tableau to use instead of /odata/$metadata
-app.MapGet("/odata/$edmx", async context =>
+//  Override the default OData $metadata handler to return XML for Tableau
+app.MapGet("/odata/$metadata", async context =>
 {
     context.Response.StatusCode = 200;
     context.Response.ContentType = "application/xml";
