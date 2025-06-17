@@ -4,25 +4,43 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.AspNetCore.OData;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Formatter;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers().AddOData(opt =>
-{
-    var modelBuilder = new ODataConventionModelBuilder
+builder.Services.AddControllers()
+    .AddOData(opt =>
     {
-        Namespace = "Lotto",
-        ContainerName = "LottoContainer"
-    };
+        var modelBuilder = new ODataConventionModelBuilder
+        {
+            Namespace = "Lotto",
+            ContainerName = "LottoContainer"
+        };
+        modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
 
-    modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
+        opt
+            .AddRouteComponents("odata", modelBuilder.GetEdmModel())
+            .Select()
+            .Filter()
+            .OrderBy()
+            .Expand()
+            .Count()
+            .SetMaxTop(100);
+    });
 
-    opt.AddRouteComponents("odata", modelBuilder.GetEdmModel())
-        .Select()
-        .Filter()
-        .OrderBy()
-        .Expand()
-        .Count();
+// Add support for XML in metadata responses
+builder.Services.Configure<MvcOptions>(options =>
+{
+    foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
+    {
+        outputFormatter.SupportedMediaTypes.Add("application/xml");
+    }
+
+    foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>())
+    {
+        inputFormatter.SupportedMediaTypes.Add("application/xml");
+    }
 });
 
 builder.Services.AddOpenApi();
