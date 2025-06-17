@@ -106,20 +106,21 @@ app.Use(async (context, next) =>
     }
 });
 
-// Force valid Accept header for $metadata and remove problematic charset from Content-Type
+// Normalize Content-Type for $metadata to avoid OData crash due to charset mismatch
 app.Use(async (context, next) =>
 {
-    if (context.Request.Path.Value?.EndsWith("$metadata") == true)
+    var isMetadataRequest = context.Request.Path.Value?.EndsWith("$metadata") == true;
+
+    if (isMetadataRequest)
     {
         context.Request.Headers["Accept"] = "application/xml;odata.metadata=minimal";
     }
 
     await next();
 
-    if (context.Request.Path.Value?.EndsWith("$metadata") == true &&
-        context.Response.ContentType?.StartsWith("application/xml") == true)
+    if (isMetadataRequest && context.Response.ContentType != null &&
+        context.Response.ContentType.Contains("application/xml", StringComparison.OrdinalIgnoreCase))
     {
-        // Strip charset from Content-Type (causes OData crash)
         context.Response.ContentType = "application/xml;odata.metadata=minimal";
     }
 });
