@@ -9,8 +9,39 @@ using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// OData + XML support
-builder.Services.AddControllers().AddOData(opt =>
+// Configure controllers and OData
+builder.Services.AddControllers(options =>
+{
+    var xmlTypes = new[]
+    {
+        "application/xml",
+        "application/xml;odata.metadata=minimal",
+        "application/xml;odata.metadata=minimal; charset=utf-8",
+        "application/xml;odata.metadata=full",
+        "application/xml;odata.metadata=full; charset=utf-8",
+        "application/xml;odata.metadata=none",
+        "application/xml;odata.metadata=none; charset=utf-8"
+    };
+
+    foreach (var formatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
+    {
+        foreach (var type in xmlTypes)
+        {
+            if (!formatter.SupportedMediaTypes.Contains(type))
+                formatter.SupportedMediaTypes.Add(type);
+        }
+    }
+
+    foreach (var formatter in options.InputFormatters.OfType<ODataInputFormatter>())
+    {
+        foreach (var type in xmlTypes)
+        {
+            if (!formatter.SupportedMediaTypes.Contains(type))
+                formatter.SupportedMediaTypes.Add(type);
+        }
+    }
+})
+.AddOData(opt =>
 {
     var modelBuilder = new ODataConventionModelBuilder
     {
@@ -28,101 +59,73 @@ builder.Services.AddControllers().AddOData(opt =>
         .SetMaxTop(100);
 });
 
-// Ensure full XML support for Tableau OData requests
-builder.Services.Configure<MvcOptions>(options =>
-{
-    var odataXmlMediaTypes = new[]
-    {
-        "application/xml",
-        "application/xml;odata.metadata=minimal",
-        "application/xml;odata.metadata=minimal; charset=utf-8",
-        "application/xml;odata.metadata=full",
-        "application/xml;odata.metadata=full; charset=utf-8",
-        "application/xml;odata.metadata=none",
-        "application/xml;odata.metadata=none; charset=utf-8",
-        "application/atom+xml",
-        "application/atomsvc+xml"
-    };
-
-    foreach (var formatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
-        foreach (var mediaType in odataXmlMediaTypes)
-            if (!formatter.SupportedMediaTypes.Any(mt => string.Equals(mt.ToString(), mediaType, StringComparison.OrdinalIgnoreCase)))
-                formatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(mediaType));
-
-    foreach (var formatter in options.InputFormatters.OfType<ODataInputFormatter>())
-        foreach (var mediaType in odataXmlMediaTypes)
-            if (!formatter.SupportedMediaTypes.Any(mt => string.Equals(mt.ToString(), mediaType, StringComparison.OrdinalIgnoreCase)))
-                formatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(mediaType));
-});
-
 builder.Services.AddOpenApi();
 
-var connStr = builder.Configuration.GetConnectionString("Default");
-
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connStr, sql =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"), sql =>
     {
         sql.CommandTimeout(60);
         sql.EnableRetryOnFailure();
-    }));
+    });
+});
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowClient", policy =>
     {
         policy.WithOrigins(
-                "https://www.lotto-checker.com",
-                "https://lotto-checker-app.wittyglacier-91c7b4e8.westus2.azurecontainerapps.io",
-                "https://localhost:5173")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+            "https://www.lotto-checker.com",
+            "https://lotto-checker-app.wittyglacier-91c7b4e8.westus2.azurecontainerapps.io",
+            "https://localhost:5173")
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
 
-// Add global error logging
+// Global exception handling
 app.Use(async (context, next) =>
 {
-    try
-    {
-        await next.Invoke();
-    }
+    try { await next(); }
     catch (Exception ex)
     {
         context.Response.StatusCode = 500;
         context.Response.ContentType = "text/plain";
-        await context.Response.WriteAsync("UNHANDLED EXCEPTION:\n" + ex.ToString());
+        await context.Response.WriteAsync("UNHANDLED EXCEPTION:\n" + ex);
     }
 });
 
-// Normalize Content-Type for $metadata to avoid OData crash due to charset mismatch
+// Normalize $metadata content type
 app.Use(async (context, next) =>
 {
-    var isMetadataRequest = context.Request.Path.Value?.EndsWith("$metadata") == true;
+    var isMetadata = context.Request.Path.Value?.EndsWith("$metadata") == true;
 
-    if (isMetadataRequest)
+    if (isMetadata)
     {
+        // Set Accept header
         context.Request.Headers["Accept"] = "application/xml;odata.metadata=minimal";
     }
 
     await next();
 
-    if (isMetadataRequest && context.Response.ContentType != null &&
-        context.Response.ContentType.Contains("application/xml", StringComparison.OrdinalIgnoreCase))
+    if (isMetadata && context.Response.ContentType?.StartsWith("application/xml") == true)
     {
         context.Response.ContentType = "application/xml;odata.metadata=minimal";
     }
 });
 
-using var scope = app.Services.CreateScope();
-var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-dbContext.Database.Migrate();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.UseCors("AllowClient");
 app.UseStaticFiles();
 
-// HEAD emulation
+// HEAD support for Tableau
 app.Use(async (context, next) =>
 {
     if (context.Request.Method == HttpMethods.Head)
@@ -148,7 +151,7 @@ app.Use(async (context, next) =>
 app.UseAuthorization();
 app.MapControllers();
 
-// SPA fallback
+// SPA fallback for frontend
 app.MapWhen(
     context => !context.Request.Path.StartsWithSegments("/api") &&
                !context.Request.Path.StartsWithSegments("/odata"),
