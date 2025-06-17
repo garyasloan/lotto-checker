@@ -5,6 +5,7 @@ using Microsoft.OData.ModelBuilder;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,20 +33,17 @@ builder.Services.AddControllers()
 // Add XML support for $metadata (required by Tableau)
 builder.Services.Configure<MvcOptions>(options =>
 {
-    const string xmlMediaType = "application/xml";
-
     foreach (var formatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
     {
-        if (!formatter.SupportedMediaTypes.Contains(xmlMediaType))
-            formatter.SupportedMediaTypes.Add(xmlMediaType);
+        formatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/xml"));
     }
 
     foreach (var formatter in options.InputFormatters.OfType<ODataInputFormatter>())
     {
-        if (!formatter.SupportedMediaTypes.Contains(xmlMediaType))
-            formatter.SupportedMediaTypes.Add(xmlMediaType);
+        formatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/xml"));
     }
 });
+
 
 builder.Services.AddOpenApi();
 
