@@ -37,6 +37,9 @@ builder.Services.Configure<MvcOptions>(options =>
         "application/xml;odata.metadata=minimal",
         "application/xml;odata.metadata=full",
         "application/xml;odata.metadata=none",
+        "application/xml;odata.metadata=minimal; charset=utf-8",
+        "application/xml;odata.metadata=full; charset=utf-8",
+        "application/xml;odata.metadata=none; charset=utf-8",
         "application/atom+xml",
         "application/atomsvc+xml"
     };
