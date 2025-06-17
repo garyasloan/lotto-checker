@@ -32,15 +32,18 @@ builder.Services.AddControllers().AddOData(opt =>
 builder.Services.Configure<MvcOptions>(options =>
 {
     var odataXmlMediaTypes = new[]
-    {
-        "application/xml;odata.metadata=minimal; charset=utf-8",
-        "application/xml;odata.metadata=full; charset=utf-8",
-        "application/xml;odata.metadata=none; charset=utf-8",
-        "application/xml; charset=utf-8",
-        "application/atom+xml; charset=utf-8",
-        "application/atomsvc+xml; charset=utf-8"
+   {
+    "application/xml",
+    "application/xml;odata.metadata=minimal",
+    "application/xml;odata.metadata=minimal; charset=utf-8",
+    "application/xml;odata.metadata=full",
+    "application/xml;odata.metadata=full; charset=utf-8",
+    "application/xml;odata.metadata=none",
+    "application/xml;odata.metadata=none; charset=utf-8",
+    "application/atom+xml",
+    "application/atomsvc+xml"
     };
-
+    
     foreach (var formatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
     {
         foreach (var mediaType in odataXmlMediaTypes)
