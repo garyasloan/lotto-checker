@@ -28,10 +28,11 @@ namespace API.Controllers
                 .AsQueryable();
         }
 
-        [HttpHead]
+       [HttpHead]
         public IActionResult Head()
         {
             Response.Headers["OData-Version"] = "4.0";
+            Response.Headers["Allow"] = "GET,HEAD";
             return Ok();
         }
 
