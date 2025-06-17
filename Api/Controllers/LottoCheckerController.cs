@@ -28,22 +28,28 @@ namespace API.Controllers
                 .AsQueryable();
         }
 
-       [HttpHead]
+        [HttpHead]
         public IActionResult Head()
         {
+            Response.StatusCode = 200; // Explicitly OK
             Response.Headers["OData-Version"] = "4.0";
-            Response.Headers["Allow"] = "GET,HEAD";
-            return Ok();
-        }
 
-        // (Optional) OPTIONS handler, if Tableau tries it
-        [HttpOptions]
-        public IActionResult Options()
-        {
-            Response.Headers["Allow"] = "GET,HEAD,OPTIONS";
-            Response.Headers["OData-Version"] = "4.0";
-            return Ok();
+            // IMPORTANT: Manually set Allow header
+            if (!Response.Headers.ContainsKey("Allow"))
+            {
+                Response.Headers.Add("Allow", "GET,HEAD");
+            }
+
+            return Ok(); // No content body expected
         }
+        // // (Optional) OPTIONS handler, if Tableau tries it
+        // [HttpOptions]
+        // public IActionResult Options()
+        // {
+        //     Response.Headers["Allow"] = "GET,HEAD,OPTIONS";
+        //     Response.Headers["OData-Version"] = "4.0";
+        //     return Ok();
+        // }
     }
 
     [Route("api/[controller]")]
