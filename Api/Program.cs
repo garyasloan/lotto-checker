@@ -136,7 +136,7 @@ app.MapGet("/edmx", async context =>
     await memoryStream.CopyToAsync(context.Response.Body);
 });
 
-// ✅ Properly override /odata/$metadata to return EDMX XML (for Tableau)
+// ✅ Proper override for /odata/$metadata to return XML instead of JSON
 app.MapGet("/odata/$metadata", async context =>
 {
     context.Response.StatusCode = 200;
@@ -164,6 +164,16 @@ app.MapGet("/odata/$metadata", async context =>
     memoryStream.Position = 0;
     await memoryStream.CopyToAsync(context.Response.Body);
 });
+
+app.MapWhen(
+    context => !context.Request.Path.StartsWithSegments("/api") &&
+               !context.Request.Path.StartsWithSegments("/odata") &&
+               !context.Request.Path.StartsWithSegments("/edmx"),
+    builder => builder.Run(async context =>
+    {
+        context.Response.ContentType = "text/html";
+        await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
+    }));
 
 using (var scope = app.Services.CreateScope())
 {
