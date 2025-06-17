@@ -12,6 +12,20 @@ namespace API.Controllers
     {
         private readonly AppDbContext _context;
 
+        private void EnsureTableauAcceptHeader()
+        {
+            if (Request.Headers.TryGetValue("User-Agent", out var userAgent) &&
+                userAgent.ToString().Contains("Tableau", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!Request.Headers.TryGetValue("Accept", out var accept) ||
+                    !accept.ToString().Contains("application/atom+xml", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Force Accept header to Atom/XML format expected by Tableau
+                    Request.Headers["Accept"] = "application/atom+xml";
+                }
+            }
+        }
+
         public NumberOccurrencesController(AppDbContext context)
         {
             _context = context;
@@ -24,35 +38,13 @@ namespace API.Controllers
         [Produces("application/json;odata.metadata=minimal")]
         public IQueryable<NumberOccurrenceDTO> Get()
         {
+            EnsureTableauAcceptHeader(); 
+            
             return _context.NumberOccurrenceResults
                 .FromSqlRaw("EXEC LottoChecker.dbo.GetNumberOccurrences")
                 .AsNoTracking()
                 .AsQueryable();
         }
-
-
-        // [HttpHead]
-        // public IActionResult Head()
-        // {
-        //     Response.StatusCode = 200; // Explicitly OK
-        //     Response.Headers["OData-Version"] = "4.0";
-
-        //     // IMPORTANT: Manually set Allow header
-        //     if (!Response.Headers.ContainsKey("Allow"))
-        //     {
-        //         Response.Headers.Add("Allow", "GET,HEAD");
-        //     }
-
-        //     return Ok(); // No content body expected
-        // }
-        // // (Optional) OPTIONS handler, if Tableau tries it
-        // [HttpOptions]
-        // public IActionResult Options()
-        // {
-        //     Response.Headers["Allow"] = "GET,HEAD,OPTIONS";
-        //     Response.Headers["OData-Version"] = "4.0";
-        //     return Ok();
-        // }
     }
 
     [Route("api/[controller]")]
