@@ -99,7 +99,7 @@ app.Use(async (context, next) =>
     }
 });
 
-// Force valid Accept header for $metadata to prevent ODataContentTypeException
+// Force valid Accept header for $metadata and remove problematic charset from Content-Type
 app.Use(async (context, next) =>
 {
     if (context.Request.Path.Value?.EndsWith("$metadata") == true)
@@ -108,6 +108,13 @@ app.Use(async (context, next) =>
     }
 
     await next();
+
+    if (context.Request.Path.Value?.EndsWith("$metadata") == true &&
+        context.Response.ContentType?.StartsWith("application/xml") == true)
+    {
+        // Strip charset from Content-Type (causes OData crash)
+        context.Response.ContentType = "application/xml;odata.metadata=minimal";
+    }
 });
 
 using var scope = app.Services.CreateScope();
