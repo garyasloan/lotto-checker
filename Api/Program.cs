@@ -105,8 +105,11 @@ app.Use(async (context, next) =>
 app.UseCors("AllowClient");
 app.UseStaticFiles();
 app.UseAuthorization();
+app.UseRouting();
 
-// ✅ Serve EDMX metadata explicitly for Tableau at /odata/$metadata
+app.MapControllers();
+
+// ✅ Serve EDMX metadata explicitly for Tableau at /odata/$metadata (after controllers)
 app.MapGet("/odata/$metadata", async context =>
 {
     context.Response.StatusCode = 200;
@@ -163,8 +166,6 @@ app.MapGet("/edmx", async context =>
     memoryStream.Position = 0;
     await memoryStream.CopyToAsync(context.Response.Body);
 });
-
-app.MapControllers();
 
 app.MapWhen(
     context => !context.Request.Path.StartsWithSegments("/api") &&
