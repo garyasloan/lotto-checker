@@ -19,6 +19,7 @@ namespace API.Controllers
 
         [EnableQuery]
         [HttpGet]
+        [AcceptVerbs("GET", "HEAD")] 
         [Produces("application/json;odata.metadata=minimal")]
         public IQueryable<NumberOccurrenceDTO> Get()
         {
@@ -28,20 +29,20 @@ namespace API.Controllers
                 .AsQueryable();
         }
 
-        [HttpHead]
-        public IActionResult Head()
-        {
-            Response.StatusCode = 200; // Explicitly OK
-            Response.Headers["OData-Version"] = "4.0";
+        // [HttpHead]
+        // public IActionResult Head()
+        // {
+        //     Response.StatusCode = 200; // Explicitly OK
+        //     Response.Headers["OData-Version"] = "4.0";
 
-            // IMPORTANT: Manually set Allow header
-            if (!Response.Headers.ContainsKey("Allow"))
-            {
-                Response.Headers.Add("Allow", "GET,HEAD");
-            }
+        //     // IMPORTANT: Manually set Allow header
+        //     if (!Response.Headers.ContainsKey("Allow"))
+        //     {
+        //         Response.Headers.Add("Allow", "GET,HEAD");
+        //     }
 
-            return Ok(); // No content body expected
-        }
+        //     return Ok(); // No content body expected
+        // }
         // // (Optional) OPTIONS handler, if Tableau tries it
         // [HttpOptions]
         // public IActionResult Options()
