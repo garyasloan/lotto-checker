@@ -110,9 +110,8 @@ app.Use(async (context, next) =>
 app.UseCors("AllowClient");
 app.UseStaticFiles();
 app.UseAuthorization();
-app.MapControllers();
 
-// ✅ Custom EDMX endpoint for Tableau
+// Custom EDMX XML endpoint for Tableau
 app.MapGet("/odata/$edmx", async context =>
 {
     context.Response.StatusCode = 200;
@@ -124,12 +123,19 @@ app.MapGet("/odata/$edmx", async context =>
         Indent = true
     });
 
-    if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
+    if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(
+        edmModel,
+        xmlWriter,
+        Microsoft.OData.Edm.Csdl.CsdlTarget.OData,
+        out var errors))
     {
         context.Response.StatusCode = 500;
         await context.Response.WriteAsync("Failed to generate metadata XML.");
     }
 });
+
+// 👇 Must be AFTER custom route or it will intercept /odata/$edmx
+app.MapControllers();
 
 // Fallback for SPA
 app.MapWhen(
@@ -141,7 +147,7 @@ app.MapWhen(
         await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
     }));
 
-// Apply migrations at startup
+// Apply migrations
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
