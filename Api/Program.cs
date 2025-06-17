@@ -31,41 +31,34 @@ builder.Services.AddControllers().AddOData(opt =>
 // Add XML support for OData formatters
 builder.Services.Configure<MvcOptions>(options =>
 {
-    var mediaTypes = new[]
+    var odataXmlMediaTypes = new[]
     {
-        "application/xml",
-        "application/xml;odata.metadata=minimal",
-        "application/xml;odata.metadata=full",
-        "application/xml;odata.metadata=none",
         "application/xml;odata.metadata=minimal; charset=utf-8",
         "application/xml;odata.metadata=full; charset=utf-8",
         "application/xml;odata.metadata=none; charset=utf-8",
-        "application/atom+xml",
-        "application/atomsvc+xml"
+        "application/xml; charset=utf-8",
+        "application/atom+xml; charset=utf-8",
+        "application/atomsvc+xml; charset=utf-8"
     };
 
-    foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
+    foreach (var formatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
     {
-        foreach (var mt in mediaTypes)
+        foreach (var mediaType in odataXmlMediaTypes)
         {
-            var parsed = MediaTypeHeaderValue.Parse(mt);
-            if (!outputFormatter.SupportedMediaTypes.Any(existing =>
-                string.Equals(existing.ToString(), parsed.ToString(), StringComparison.OrdinalIgnoreCase)))
+            if (!formatter.SupportedMediaTypes.Contains(mediaType))
             {
-                outputFormatter.SupportedMediaTypes.Add(parsed);
+                formatter.SupportedMediaTypes.Add(mediaType);
             }
         }
     }
 
-    foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>())
+    foreach (var formatter in options.InputFormatters.OfType<ODataInputFormatter>())
     {
-        foreach (var mt in mediaTypes)
+        foreach (var mediaType in odataXmlMediaTypes)
         {
-            var parsed = MediaTypeHeaderValue.Parse(mt);
-            if (!inputFormatter.SupportedMediaTypes.Any(existing =>
-                string.Equals(existing.ToString(), parsed.ToString(), StringComparison.OrdinalIgnoreCase)))
+            if (!formatter.SupportedMediaTypes.Contains(mediaType))
             {
-                inputFormatter.SupportedMediaTypes.Add(parsed);
+                formatter.SupportedMediaTypes.Add(mediaType);
             }
         }
     }
