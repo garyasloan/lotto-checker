@@ -1,61 +1,61 @@
 using API.Data;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.AspNetCore.OData;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add OData and XML format support for $metadata (required for Tableau)
-builder.Services.AddControllers().AddOData(opt =>
-{
-    var modelBuilder = new ODataConventionModelBuilder
+// Add controllers and OData services
+builder.Services.AddControllers()
+    .AddOData(opt =>
     {
-        Namespace = "Lotto",
-        ContainerName = "LottoContainer"
-    };
-    modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
+        var modelBuilder = new ODataConventionModelBuilder
+        {
+            Namespace = "Lotto",
+            ContainerName = "LottoContainer"
+        };
 
-    opt
-        .AddRouteComponents("odata", modelBuilder.GetEdmModel())
-        .Select()
-        .Filter()
-        .OrderBy()
-        .Expand()
-        .Count()
-        .SetMaxTop(100);
-});
+        modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
 
-// Support for XML (needed by Tableau when requesting $metadata)
+        opt.AddRouteComponents("odata", modelBuilder.GetEdmModel())
+           .Select()
+           .Filter()
+           .OrderBy()
+           .Expand()
+           .Count()
+           .SetMaxTop(100);
+    });
+
+// ✅ Add XML support for $metadata (needed by Tableau)
 builder.Services.Configure<MvcOptions>(options =>
 {
-    foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
+    var xmlMediaType = "application/xml";
+
+    foreach (var formatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
     {
-        if (!outputFormatter.SupportedMediaTypes.Contains("application/xml"))
-            outputFormatter.SupportedMediaTypes.Add("application/xml");
+        if (!formatter.SupportedMediaTypes.Contains(xmlMediaType))
+            formatter.SupportedMediaTypes.Add(xmlMediaType);
     }
 
-    foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>())
+    foreach (var formatter in options.InputFormatters.OfType<ODataInputFormatter>())
     {
-        if (!inputFormatter.SupportedMediaTypes.Contains("application/xml"))
-            inputFormatter.SupportedMediaTypes.Add("application/xml");
+        if (!formatter.SupportedMediaTypes.Contains(xmlMediaType))
+            formatter.SupportedMediaTypes.Add(xmlMediaType);
     }
 });
 
 builder.Services.AddOpenApi();
 
 var connStr = builder.Configuration.GetConnectionString("Default");
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connStr, sql =>
     {
-        sql.CommandTimeout(60);          // Allow longer queries
-        sql.EnableRetryOnFailure();      // Retry on transient failures
+        sql.CommandTimeout(60);
+        sql.EnableRetryOnFailure();
     }));
 
 builder.Services.AddCors(options =>
@@ -63,12 +63,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowClient", policy =>
     {
         policy.WithOrigins(
-                "https://www.lotto-checker.com",
-                "https://lotto-checker-app.wittyglacier-91c7b4e8.westus2.azurecontainerapps.io",
-                "https://localhost:5173"
-            )
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+            "https://www.lotto-checker.com",
+            "https://lotto-checker-app.wittyglacier-91c7b4e8.westus2.azurecontainerapps.io",
+            "https://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
@@ -82,9 +81,9 @@ dbContext.Database.Migrate();
 app.UseCors("AllowClient");
 app.UseStaticFiles();
 
+// HEAD fallback
 app.Use(async (context, next) =>
 {
-    // Emulate HEAD requests for Tableau
     if (context.Request.Method == HttpMethods.Head)
     {
         context.Request.Method = HttpMethods.Get;
@@ -107,24 +106,15 @@ app.Use(async (context, next) =>
 
 app.UseAuthorization();
 app.MapControllers();
-app.MapWhen(context =>
-    !context.Request.Path.StartsWithSegments("/api") &&
-    !context.Request.Path.StartsWithSegments("/odata"),
+
+// SPA fallback
+app.MapWhen(
+    context => !context.Request.Path.StartsWithSegments("/api") &&
+               !context.Request.Path.StartsWithSegments("/odata"),
     builder => builder.Run(async context =>
-{
-    context.Response.ContentType = "text/html";
-    await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
-}));
+    {
+        context.Response.ContentType = "text/html";
+        await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
+    }));
 
 app.Run();
-
-// static IEdmModel GetEdmModel()
-// {
-//     var builder = new ODataConventionModelBuilder
-//     {
-//         Namespace = "Lotto",
-//         ContainerName = "LottoContainer"
-//     };
-//     builder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
-//     return builder.GetEdmModel();
-// }
