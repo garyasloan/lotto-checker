@@ -18,7 +18,9 @@ namespace API.Controllers
             _context = context;
         }
 
+        
         [EnableQuery]
+        [HttpGet]
         public IActionResult Get()
         {
             try
@@ -36,7 +38,16 @@ namespace API.Controllers
             }
         }
 
+        // handle HEAD requests (for Tableau compatibility)
+        [HttpHead]
+        public IActionResult Head()
+        {
+            // Return 200 OK without body, but with headers including OData-Version (set in middleware)
+            return Ok();
+        }
     }
+
+    
     [Route("api/[controller]")]
     [ApiController]
     public class LottoCheckerController : ControllerBase
