@@ -32,18 +32,31 @@ builder.Services.AddControllers().AddOData(opt =>
 // Add XML support for OData formatters
 builder.Services.Configure<MvcOptions>(options =>
 {
-    const string xmlMediaType = "application/xml";
+    var odataXmlMediaTypes = new[]
+    {
+        "application/xml",
+        "application/xml;odata.metadata=minimal",
+        "application/xml;odata.metadata=full",
+        "application/atom+xml",
+        "application/atomsvc+xml"
+    };
 
     foreach (var formatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
     {
-        if (!formatter.SupportedMediaTypes.Contains(xmlMediaType))
-            formatter.SupportedMediaTypes.Add(xmlMediaType);
+        foreach (var mediaType in odataXmlMediaTypes)
+        {
+            if (!formatter.SupportedMediaTypes.Contains(mediaType))
+                formatter.SupportedMediaTypes.Add(mediaType);
+        }
     }
 
     foreach (var formatter in options.InputFormatters.OfType<ODataInputFormatter>())
     {
-        if (!formatter.SupportedMediaTypes.Contains(xmlMediaType))
-            formatter.SupportedMediaTypes.Add(xmlMediaType);
+        foreach (var mediaType in odataXmlMediaTypes)
+        {
+            if (!formatter.SupportedMediaTypes.Contains(mediaType))
+                formatter.SupportedMediaTypes.Add(mediaType);
+        }
     }
 });
 
