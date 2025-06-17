@@ -18,8 +18,9 @@ namespace API.Controllers
         }
 
         [EnableQuery]
-        // [HttpGet]
-        [AcceptVerbs("GET", "HEAD")] 
+        [HttpGet]
+        [HttpHead] 
+        [AcceptVerbs("GET", "HEAD")]
         [Produces("application/json;odata.metadata=minimal")]
         public IQueryable<NumberOccurrenceDTO> Get()
         {
@@ -28,6 +29,7 @@ namespace API.Controllers
                 .AsNoTracking()
                 .AsQueryable();
         }
+
 
         // [HttpHead]
         // public IActionResult Head()
