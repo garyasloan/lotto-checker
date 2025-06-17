@@ -28,41 +28,31 @@ builder.Services.AddControllers().AddOData(opt =>
         .SetMaxTop(100);
 });
 
-// Add XML support for OData formatters
+// Ensure full XML support for Tableau OData requests
 builder.Services.Configure<MvcOptions>(options =>
 {
     var odataXmlMediaTypes = new[]
     {
         "application/xml",
         "application/xml;odata.metadata=minimal",
-        "application/xml;odata.metadata=full",
-        "application/xml;odata.metadata=none",
         "application/xml;odata.metadata=minimal; charset=utf-8",
+        "application/xml;odata.metadata=full",
         "application/xml;odata.metadata=full; charset=utf-8",
-        "application/xml;odata.metadata=none; charset=utf-8"
+        "application/xml;odata.metadata=none",
+        "application/xml;odata.metadata=none; charset=utf-8",
+        "application/atom+xml",
+        "application/atomsvc+xml"
     };
 
     foreach (var formatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
-    {
         foreach (var mediaType in odataXmlMediaTypes)
-        {
             if (!formatter.SupportedMediaTypes.Any(mt => string.Equals(mt.ToString(), mediaType, StringComparison.OrdinalIgnoreCase)))
-            {
                 formatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(mediaType));
-            }
-        }
-    }
 
     foreach (var formatter in options.InputFormatters.OfType<ODataInputFormatter>())
-    {
         foreach (var mediaType in odataXmlMediaTypes)
-        {
             if (!formatter.SupportedMediaTypes.Any(mt => string.Equals(mt.ToString(), mediaType, StringComparison.OrdinalIgnoreCase)))
-            {
                 formatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(mediaType));
-            }
-        }
-    }
 });
 
 builder.Services.AddOpenApi();
