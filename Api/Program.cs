@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
+using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,15 @@ string[] xmlMediaTypes =
     "application/xml;odata.metadata=none",
     "application/xml;odata.metadata=none; charset=utf-8"
 };
+
+// Define the EDM model once for reuse
+var modelBuilder = new ODataConventionModelBuilder
+{
+    Namespace = "Lotto",
+    ContainerName = "LottoContainer"
+};
+modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
+IEdmModel edmModel = modelBuilder.GetEdmModel();
 
 // Add OData and formatters
 builder.Services.AddControllers(options =>
@@ -48,14 +58,7 @@ builder.Services.AddControllers(options =>
 })
 .AddOData(opt =>
 {
-    var modelBuilder = new ODataConventionModelBuilder
-    {
-        Namespace = "Lotto",
-        ContainerName = "LottoContainer"
-    };
-    modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
-
-    opt.AddRouteComponents("odata", modelBuilder.GetEdmModel())
+    opt.AddRouteComponents("odata", edmModel)
         .Select()
         .Filter()
         .OrderBy()
@@ -104,26 +107,30 @@ app.Use(async (context, next) =>
     }
 });
 
+// Middleware to serve EDMX XML for /odata/$metadata
 app.Use(async (context, next) =>
 {
-    var isMetadata = context.Request.Path.Value?.EndsWith("$metadata", StringComparison.OrdinalIgnoreCase) == true;
-
-    if (isMetadata)
+    if (context.Request.Path.Equals("/odata/$metadata", StringComparison.OrdinalIgnoreCase))
     {
-        // Force Accept header to match what Tableau wants
-        context.Request.Headers["Accept"] = "application/xml;odata.metadata=minimal";
-        context.Request.Headers["OData-Version"] = "4.0";
+        context.Response.StatusCode = 200;
+        context.Response.ContentType = "application/xml";
+
+        using var xmlWriter = System.Xml.XmlWriter.Create(context.Response.Body, new System.Xml.XmlWriterSettings
+        {
+            Async = true,
+            Indent = true
+        });
+
+        if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
+        {
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsync("Failed to generate metadata XML.");
+        }
+
+        return; // stop further processing
     }
 
     await next();
-
-    if (isMetadata &&
-        context.Response.ContentType != null &&
-        context.Response.ContentType.Contains("application/json", StringComparison.OrdinalIgnoreCase))
-    {
-        // Fallback override if OData ignores Accept
-        context.Response.ContentType = "application/xml;odata.metadata=minimal";
-    }
 });
 
 app.UseCors("AllowClient");
