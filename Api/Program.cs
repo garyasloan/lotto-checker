@@ -107,8 +107,37 @@ app.UseStaticFiles();
 app.UseAuthorization();
 app.MapControllers();
 
-// ✅ Serve EDMX XML metadata explicitly for Tableau at alternate path
+// ✅ Serve EDMX metadata explicitly for Tableau at /edmx
 app.MapGet("/edmx", async context =>
+{
+    context.Response.StatusCode = 200;
+    context.Response.ContentType = "application/xml";
+
+    var settings = new System.Xml.XmlWriterSettings
+    {
+        Async = true,
+        Indent = true
+    };
+
+    using var memoryStream = new MemoryStream();
+    using (var xmlWriter = System.Xml.XmlWriter.Create(memoryStream, settings))
+    {
+        if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
+        {
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsync("Failed to generate metadata XML.");
+            return;
+        }
+
+        await xmlWriter.FlushAsync();
+    }
+
+    memoryStream.Position = 0;
+    await memoryStream.CopyToAsync(context.Response.Body);
+});
+
+// ✅ Override /odata/$metadata to also serve EDMX for Tableau
+app.MapGet("/odata/$metadata", async context =>
 {
     context.Response.StatusCode = 200;
     context.Response.ContentType = "application/xml";
