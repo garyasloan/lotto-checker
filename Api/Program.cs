@@ -7,16 +7,16 @@ using Microsoft.AspNetCore.OData;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// builder.Services.AddControllers()
-//     .AddOData(opt =>
-//         opt.Select().Filter().OrderBy().Expand().Count().SetMaxTop(100)
-//             .AddRouteComponents("odata", GetEdmModel()));
-
 builder.Services.AddControllers().AddOData(opt =>
 {
-    var modelBuilder = new ODataConventionModelBuilder();
-    modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences"); 
+    var modelBuilder = new ODataConventionModelBuilder
+    {
+        Namespace = "Lotto",
+        ContainerName = "LottoContainer"
+    };
+
+    modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
+
     opt.AddRouteComponents("odata", modelBuilder.GetEdmModel())
         .Select()
         .Filter()
@@ -87,7 +87,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapWhen(context =>
     !context.Request.Path.StartsWithSegments("/api") &&
-    !context.Request.Path.StartsWithSegments("/odata"), 
+    !context.Request.Path.StartsWithSegments("/odata"),
     builder => builder.Run(async context =>
 {
     context.Response.ContentType = "text/html";
