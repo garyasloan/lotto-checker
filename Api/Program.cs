@@ -1,6 +1,5 @@
 using API.Data;
 using API.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +9,7 @@ using Microsoft.OData.ModelBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// XML media types to support for OData
 string[] xmlMediaTypes =
 {
     "application/xml",
@@ -21,6 +21,7 @@ string[] xmlMediaTypes =
     "application/xml;odata.metadata=none; charset=utf-8"
 };
 
+// Define the EDM model once for reuse
 var modelBuilder = new ODataConventionModelBuilder
 {
     Namespace = "Lotto",
@@ -29,6 +30,7 @@ var modelBuilder = new ODataConventionModelBuilder
 modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
 IEdmModel edmModel = modelBuilder.GetEdmModel();
 
+// Add OData and XML formatters
 builder.Services.AddControllers(options =>
 {
     foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
@@ -88,6 +90,7 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// Global exception handler
 app.Use(async (context, next) =>
 {
     try
@@ -107,31 +110,32 @@ app.UseStaticFiles();
 app.UseAuthorization();
 app.MapControllers();
 
-// ✅ Serve EDMX XML metadata explicitly for Tableau
-app.Use(async (context, next) =>
+// ✅ Test route to verify routing is working
+app.MapGet("/odata/test", async context =>
 {
-    if (context.Request.Path.Equals("/odata/$edmx", StringComparison.OrdinalIgnoreCase))
-    {
-        context.Response.StatusCode = 200;
-        context.Response.ContentType = "application/xml";
-
-        using var xmlWriter = System.Xml.XmlWriter.Create(context.Response.Body, new System.Xml.XmlWriterSettings
-        {
-            Async = true,
-            Indent = true
-        });
-
-        if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
-        {
-            context.Response.StatusCode = 500;
-            await context.Response.WriteAsync("Failed to generate metadata XML.");
-        }
-        return;
-    }
-
-    await next();
+    await context.Response.WriteAsync("✅ EDMX test route hit successfully.");
 });
 
+// ✅ Custom EDMX metadata route for Tableau
+app.MapGet("/odata/$edmx", async context =>
+{
+    context.Response.StatusCode = 200;
+    context.Response.ContentType = "application/xml";
+
+    using var xmlWriter = System.Xml.XmlWriter.Create(context.Response.Body, new System.Xml.XmlWriterSettings
+    {
+        Async = true,
+        Indent = true
+    });
+
+    if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
+    {
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("Failed to generate metadata XML.");
+    }
+});
+
+// Fallback for SPA
 app.MapWhen(
     context => !context.Request.Path.StartsWithSegments("/api") &&
                !context.Request.Path.StartsWithSegments("/odata"),
@@ -141,6 +145,7 @@ app.MapWhen(
         await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
     }));
 
+// Run migrations at startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
