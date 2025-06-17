@@ -107,32 +107,26 @@ app.Use(async (context, next) =>
     }
 });
 
-// Middleware to serve EDMX XML for /odata/$metadata
-app.Use(async (context, next) =>
+// Serve XML metadata explicitly for Tableau
+app.MapGet("/odata/$metadata", async context =>
 {
-    if (context.Request.Path.Equals("/odata/$metadata", StringComparison.OrdinalIgnoreCase))
+    context.Response.StatusCode = 200;
+    context.Response.ContentType = "application/xml";
+
+    using var xmlWriter = System.Xml.XmlWriter.Create(context.Response.Body, new System.Xml.XmlWriterSettings
     {
-        context.Response.StatusCode = 200;
-        context.Response.ContentType = "application/xml";
+        Async = true,
+        Indent = true
+    });
 
-        using var xmlWriter = System.Xml.XmlWriter.Create(context.Response.Body, new System.Xml.XmlWriterSettings
-        {
-            Async = true,
-            Indent = true
-        });
-
-        if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
-        {
-            context.Response.StatusCode = 500;
-            await context.Response.WriteAsync("Failed to generate metadata XML.");
-        }
-
-        return; // stop further processing
+    if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
+    {
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("Failed to generate metadata XML.");
     }
-
-    await next();
 });
 
+// App pipeline
 app.UseCors("AllowClient");
 app.UseStaticFiles();
 app.UseAuthorization();
