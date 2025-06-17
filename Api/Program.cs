@@ -10,7 +10,6 @@ using Microsoft.OData.ModelBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// XML media types to support for OData
 string[] xmlMediaTypes =
 {
     "application/xml",
@@ -22,7 +21,6 @@ string[] xmlMediaTypes =
     "application/xml;odata.metadata=none; charset=utf-8"
 };
 
-// Build EDM model once for reuse
 var modelBuilder = new ODataConventionModelBuilder
 {
     Namespace = "Lotto",
@@ -31,7 +29,6 @@ var modelBuilder = new ODataConventionModelBuilder
 modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
 IEdmModel edmModel = modelBuilder.GetEdmModel();
 
-// Add OData and XML formatters
 builder.Services.AddControllers(options =>
 {
     foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
@@ -67,7 +64,6 @@ builder.Services.AddControllers(options =>
         .SetMaxTop(100);
 });
 
-// Database and CORS
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"), sql =>
     {
@@ -92,7 +88,6 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Global exception handler
 app.Use(async (context, next) =>
 {
     try
@@ -110,34 +105,33 @@ app.Use(async (context, next) =>
 app.UseCors("AllowClient");
 app.UseStaticFiles();
 app.UseAuthorization();
-
-// Custom EDMX XML endpoint for Tableau
-app.MapGet("/odata/$edmx", async context =>
-{
-    context.Response.StatusCode = 200;
-    context.Response.ContentType = "application/xml";
-
-    using var xmlWriter = System.Xml.XmlWriter.Create(context.Response.Body, new System.Xml.XmlWriterSettings
-    {
-        Async = true,
-        Indent = true
-    });
-
-    if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(
-        edmModel,
-        xmlWriter,
-        Microsoft.OData.Edm.Csdl.CsdlTarget.OData,
-        out var errors))
-    {
-        context.Response.StatusCode = 500;
-        await context.Response.WriteAsync("Failed to generate metadata XML.");
-    }
-});
-
-// 👇 Must be AFTER custom route or it will intercept /odata/$edmx
 app.MapControllers();
 
-// Fallback for SPA
+// ✅ Serve EDMX XML metadata explicitly for Tableau
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.Equals("/odata/$edmx", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.StatusCode = 200;
+        context.Response.ContentType = "application/xml";
+
+        using var xmlWriter = System.Xml.XmlWriter.Create(context.Response.Body, new System.Xml.XmlWriterSettings
+        {
+            Async = true,
+            Indent = true
+        });
+
+        if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
+        {
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsync("Failed to generate metadata XML.");
+        }
+        return;
+    }
+
+    await next();
+});
+
 app.MapWhen(
     context => !context.Request.Path.StartsWithSegments("/api") &&
                !context.Request.Path.StartsWithSegments("/odata"),
@@ -147,7 +141,6 @@ app.MapWhen(
         await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
     }));
 
-// Apply migrations
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
