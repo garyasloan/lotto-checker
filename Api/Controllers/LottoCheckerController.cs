@@ -28,11 +28,21 @@ namespace API.Controllers
                 .AsQueryable();
         }
 
-        // [HttpHead]
-         public IActionResult Head()
-         {
-             return Ok();
-         }
+        [HttpHead]
+        public IActionResult Head()
+        {
+            Response.Headers["OData-Version"] = "4.0";
+            return Ok();
+        }
+
+        // (Optional) OPTIONS handler, if Tableau tries it
+        [HttpOptions]
+        public IActionResult Options()
+        {
+            Response.Headers["Allow"] = "GET,HEAD,OPTIONS";
+            Response.Headers["OData-Version"] = "4.0";
+            return Ok();
+        }
     }
 
     [Route("api/[controller]")]
