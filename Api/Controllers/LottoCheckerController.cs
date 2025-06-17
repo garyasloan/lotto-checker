@@ -18,7 +18,7 @@ namespace API.Controllers
             _context = context;
         }
 
-        
+
         [EnableQuery]
         [HttpGet]
         public IActionResult Get()
@@ -34,7 +34,11 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                return StatusCode(500, new
+                {
+                    error = ex.ToString(),
+                    inner = ex.InnerException?.ToString()
+                });
             }
         }
 
@@ -47,7 +51,7 @@ namespace API.Controllers
         }
     }
 
-    
+
     [Route("api/[controller]")]
     [ApiController]
     public class LottoCheckerController : ControllerBase

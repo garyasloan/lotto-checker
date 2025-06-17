@@ -44,10 +44,9 @@ public class SuperLottoWinningNumberDTO
     public long PrizeAmount { get; set; }
 }
 
-[NotMapped]
+
 public class NumberOccurrenceDTO
 {
-    [Key]
     public int Label { get; set; }
     public int Count { get; set; }
 }

@@ -40,10 +40,14 @@ namespace API.Data
             base.OnModelCreating(modelBuilder);
 
             // Register DTOs as keyless (stored proc resultsets)
-            modelBuilder.Entity<NumberOccurrenceDTO>().ToView(null);
+            modelBuilder.Entity<NumberOccurrenceDTO>(entity =>
+            {
+                entity.HasNoKey();
+                entity.ToView(null);
+            });
+
             modelBuilder.Entity<SuperLottoWinningNumberDTO>().HasNoKey().ToView(null);
 
-            // Define SuperLottoUserPick
             modelBuilder.Entity<SuperLottoUserPick>(entity =>
             {
                 entity.Property(e => e.Id).HasDefaultValueSql("(newsequentialid())");
@@ -51,7 +55,6 @@ namespace API.Data
                 entity.Property(e => e.DateAdded).HasDefaultValueSql("GETDATE()").ValueGeneratedOnAdd();
             });
 
-            // Define SuperLottoWinningNumber
             modelBuilder.Entity<SuperLottoWinningNumber>(entity =>
             {
                 entity.Property(e => e.DrawNumber).ValueGeneratedNever();
