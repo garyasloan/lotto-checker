@@ -104,27 +104,26 @@ app.Use(async (context, next) =>
     }
 });
 
-// HEAD support for Tableau
 app.Use(async (context, next) =>
 {
-    if (context.Request.Method == HttpMethods.Head)
+    var isMetadata = context.Request.Path.Value?.EndsWith("$metadata", StringComparison.OrdinalIgnoreCase) == true;
+
+    if (isMetadata)
     {
-        context.Request.Method = HttpMethods.Get;
-
-        var originalBody = context.Response.Body;
-        await using var memStream = new MemoryStream();
-        context.Response.Body = memStream;
-
-        await next();
-
-        context.Response.Body = originalBody;
-        context.Response.ContentLength = memStream.Length;
-        context.Response.Headers["OData-Version"] = "4.0";
-        context.Response.Headers["Allow"] = "GET,HEAD";
-        return;
+        // Force Accept header to match what Tableau wants
+        context.Request.Headers["Accept"] = "application/xml;odata.metadata=minimal";
+        context.Request.Headers["OData-Version"] = "4.0";
     }
 
     await next();
+
+    if (isMetadata &&
+        context.Response.ContentType != null &&
+        context.Response.ContentType.Contains("application/json", StringComparison.OrdinalIgnoreCase))
+    {
+        // Fallback override if OData ignores Accept
+        context.Response.ContentType = "application/xml;odata.metadata=minimal";
+    }
 });
 
 app.UseCors("AllowClient");
