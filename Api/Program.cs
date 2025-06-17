@@ -5,7 +5,6 @@ using Microsoft.OData.ModelBuilder;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,10 +29,10 @@ builder.Services.AddControllers()
            .SetMaxTop(100);
     });
 
-// ✅ Add XML support for $metadata (needed by Tableau)
+// Add XML support for $metadata (required by Tableau)
 builder.Services.Configure<MvcOptions>(options =>
 {
-    var xmlMediaType = "application/xml";
+    const string xmlMediaType = "application/xml";
 
     foreach (var formatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
     {
@@ -81,7 +80,7 @@ dbContext.Database.Migrate();
 app.UseCors("AllowClient");
 app.UseStaticFiles();
 
-// HEAD fallback
+// HEAD fallback support
 app.Use(async (context, next) =>
 {
     if (context.Request.Method == HttpMethods.Head)
