@@ -9,7 +9,7 @@ using Microsoft.OData.ModelBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// XML media types to support for OData
+// Supported XML media types for OData
 string[] xmlMediaTypes =
 {
     "application/xml",
@@ -21,7 +21,7 @@ string[] xmlMediaTypes =
     "application/xml;odata.metadata=none; charset=utf-8"
 };
 
-// Define the EDM model once for reuse
+// Build EDM model
 var modelBuilder = new ODataConventionModelBuilder
 {
     Namespace = "Lotto",
@@ -30,7 +30,7 @@ var modelBuilder = new ODataConventionModelBuilder
 modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
 IEdmModel edmModel = modelBuilder.GetEdmModel();
 
-// Add OData and XML formatters
+// Add controllers and OData formatters
 builder.Services.AddControllers(options =>
 {
     foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
@@ -38,9 +38,7 @@ builder.Services.AddControllers(options =>
         foreach (var mediaType in xmlMediaTypes)
         {
             if (!outputFormatter.SupportedMediaTypes.Contains(mediaType))
-            {
                 outputFormatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(mediaType));
-            }
         }
     }
 
@@ -49,9 +47,7 @@ builder.Services.AddControllers(options =>
         foreach (var mediaType in xmlMediaTypes)
         {
             if (!inputFormatter.SupportedMediaTypes.Contains(mediaType))
-            {
                 inputFormatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(mediaType));
-            }
         }
     }
 })
@@ -66,6 +62,7 @@ builder.Services.AddControllers(options =>
         .SetMaxTop(100);
 });
 
+// Add database and CORS services
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"), sql =>
     {
@@ -93,10 +90,7 @@ var app = builder.Build();
 // Global exception handler
 app.Use(async (context, next) =>
 {
-    try
-    {
-        await next();
-    }
+    try { await next(); }
     catch (Exception ex)
     {
         context.Response.StatusCode = 500;
@@ -108,13 +102,6 @@ app.Use(async (context, next) =>
 app.UseCors("AllowClient");
 app.UseStaticFiles();
 app.UseAuthorization();
-app.MapControllers();
-
-// ✅ Test route to verify routing is working
-app.MapGet("/odata/test", async context =>
-{
-    await context.Response.WriteAsync("✅ EDMX test route hit successfully.");
-});
 
 // ✅ Custom EDMX metadata route for Tableau
 app.MapGet("/odata/$edmx", async context =>
@@ -134,6 +121,14 @@ app.MapGet("/odata/$edmx", async context =>
         await context.Response.WriteAsync("Failed to generate metadata XML.");
     }
 });
+
+// ✅ Simple test route for debugging
+app.MapGet("/odata/test", async context =>
+{
+    await context.Response.WriteAsync("✅ EDMX test route hit successfully.");
+});
+
+app.MapControllers();
 
 // Fallback for SPA
 app.MapWhen(
