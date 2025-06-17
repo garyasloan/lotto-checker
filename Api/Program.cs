@@ -110,35 +110,32 @@ app.UseRouting();
 app.MapControllers();
 
 // ✅ Custom EDMX metadata override to ensure Tableau compatibility
-app.UseEndpoints(endpoints =>
+app.MapGet("/odata/$metadata", async context =>
 {
-    endpoints.MapGet("/odata/$metadata", async context =>
+    context.Response.StatusCode = 200;
+    context.Response.ContentType = "application/xml";
+
+    var settings = new System.Xml.XmlWriterSettings
     {
-        context.Response.StatusCode = 200;
-        context.Response.ContentType = "application/xml";
+        Async = true,
+        Indent = true
+    };
 
-        var settings = new System.Xml.XmlWriterSettings
+    using var memoryStream = new MemoryStream();
+    using (var xmlWriter = System.Xml.XmlWriter.Create(memoryStream, settings))
+    {
+        if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
         {
-            Async = true,
-            Indent = true
-        };
-
-        using var memoryStream = new MemoryStream();
-        using (var xmlWriter = System.Xml.XmlWriter.Create(memoryStream, settings))
-        {
-            if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
-            {
-                context.Response.StatusCode = 500;
-                await context.Response.WriteAsync("Failed to generate metadata XML.");
-                return;
-            }
-
-            await xmlWriter.FlushAsync();
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsync("Failed to generate metadata XML.");
+            return;
         }
 
-        memoryStream.Position = 0;
-        await memoryStream.CopyToAsync(context.Response.Body);
-    });
+        await xmlWriter.FlushAsync();
+    }
+
+    memoryStream.Position = 0;
+    await memoryStream.CopyToAsync(context.Response.Body);
 });
 
 app.MapWhen(
