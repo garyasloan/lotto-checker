@@ -32,25 +32,23 @@ builder.Services.AddControllers().AddOData(opt =>
 builder.Services.Configure<MvcOptions>(options =>
 {
     var odataXmlMediaTypes = new[]
-   {
-    "application/xml",
-    "application/xml;odata.metadata=minimal",
-    "application/xml;odata.metadata=minimal; charset=utf-8",
-    "application/xml;odata.metadata=full",
-    "application/xml;odata.metadata=full; charset=utf-8",
-    "application/xml;odata.metadata=none",
-    "application/xml;odata.metadata=none; charset=utf-8",
-    "application/atom+xml",
-    "application/atomsvc+xml"
+    {
+        "application/xml",
+        "application/xml;odata.metadata=minimal",
+        "application/xml;odata.metadata=full",
+        "application/xml;odata.metadata=none",
+        "application/xml;odata.metadata=minimal; charset=utf-8",
+        "application/xml;odata.metadata=full; charset=utf-8",
+        "application/xml;odata.metadata=none; charset=utf-8"
     };
-    
+
     foreach (var formatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
     {
         foreach (var mediaType in odataXmlMediaTypes)
         {
-            if (!formatter.SupportedMediaTypes.Contains(mediaType))
+            if (!formatter.SupportedMediaTypes.Any(mt => string.Equals(mt.ToString(), mediaType, StringComparison.OrdinalIgnoreCase)))
             {
-                formatter.SupportedMediaTypes.Add(mediaType);
+                formatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(mediaType));
             }
         }
     }
@@ -59,9 +57,9 @@ builder.Services.Configure<MvcOptions>(options =>
     {
         foreach (var mediaType in odataXmlMediaTypes)
         {
-            if (!formatter.SupportedMediaTypes.Contains(mediaType))
+            if (!formatter.SupportedMediaTypes.Any(mt => string.Equals(mt.ToString(), mediaType, StringComparison.OrdinalIgnoreCase)))
             {
-                formatter.SupportedMediaTypes.Add(mediaType);
+                formatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(mediaType));
             }
         }
     }
