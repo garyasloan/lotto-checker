@@ -47,6 +47,7 @@ public class SuperLottoWinningNumberDTO
 
 public class NumberOccurrenceDTO
 {
+    [Key]
     public int Label { get; set; }
     public int Count { get; set; }
 }

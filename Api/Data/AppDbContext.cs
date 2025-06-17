@@ -18,6 +18,7 @@ namespace API.Data
         public virtual DbSet<SuperLottoUserPick> SuperLottoUserPicks { get; set; }
         public virtual DbSet<SuperLottoWinningNumberDTO> WinningPicksFromProc { get; set; }
         public virtual DbSet<SuperLottoWinningNumber> SuperLottoWinningNumbers { get; set; }
+        public virtual DbSet<NumberOccurrenceDTO> NumberOccurrenceResults { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

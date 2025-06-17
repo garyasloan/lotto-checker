@@ -8,8 +8,7 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 namespace API.Controllers
 {
 
-    [Route("odata/[controller]")]
-    public class NumberOccurrencesController : ODataController
+public class NumberOccurrencesController : ODataController
     {
         private readonly AppDbContext _context;
 
@@ -18,39 +17,23 @@ namespace API.Controllers
             _context = context;
         }
 
-
         [EnableQuery]
         [HttpGet]
-        public IActionResult Get()
+        [Produces("application/json;odata.metadata=minimal")]
+        public IQueryable<NumberOccurrenceDTO> Get()
         {
-            try
-            {
-                var result = _context.Set<NumberOccurrenceDTO>()
-                    .FromSqlRaw("EXEC LottoChecker.dbo.GetNumberOccurrences")
-                    .AsNoTracking()
-                    .ToList();
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    error = ex.ToString(),
-                    inner = ex.InnerException?.ToString()
-                });
-            }
+            return _context.NumberOccurrenceResults
+                .FromSqlRaw("EXEC LottoChecker.dbo.GetNumberOccurrences")
+                .AsNoTracking()
+                .AsQueryable();
         }
 
-        // handle HEAD requests (for Tableau compatibility)
         [HttpHead]
         public IActionResult Head()
         {
-            // Return 200 OK without body, but with headers including OData-Version (set in middleware)
             return Ok();
         }
     }
-
 
     [Route("api/[controller]")]
     [ApiController]
