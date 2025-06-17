@@ -8,10 +8,22 @@ using Microsoft.AspNetCore.OData;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers()
-    .AddOData(opt =>
-        opt.Select().Filter().OrderBy().Expand().Count().SetMaxTop(100)
-            .AddRouteComponents("odata", GetEdmModel()));
+// builder.Services.AddControllers()
+//     .AddOData(opt =>
+//         opt.Select().Filter().OrderBy().Expand().Count().SetMaxTop(100)
+//             .AddRouteComponents("odata", GetEdmModel()));
+
+builder.Services.AddControllers().AddOData(opt =>
+{
+    var modelBuilder = new ODataConventionModelBuilder();
+    modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences"); 
+    opt.AddRouteComponents("odata", modelBuilder.GetEdmModel())
+        .Select()
+        .Filter()
+        .OrderBy()
+        .Expand()
+        .Count();
+});
 
 builder.Services.AddOpenApi();
 
