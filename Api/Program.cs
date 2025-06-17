@@ -50,16 +50,23 @@ app.UseStaticFiles();
 
 app.Use(async (context, next) =>
 {
-    context.Response.OnStarting(() =>
+    // Emulate HEAD by short-circuiting GET without response body
+    if (context.Request.Method == HttpMethods.Head)
     {
-        if (context.Request.Path.StartsWithSegments("/odata") &&
-            !context.Response.Headers.ContainsKey("OData-Version"))
-        {
-            context.Response.Headers["OData-Version"] = "4.0";
-        }
+        context.Request.Method = HttpMethods.Get;
 
-        return Task.CompletedTask;
-    });
+        var originalBody = context.Response.Body;
+        await using var memStream = new MemoryStream();
+        context.Response.Body = memStream;
+
+        await next();
+
+        context.Response.Body = originalBody;
+        context.Response.ContentLength = memStream.Length;
+        context.Response.Headers["OData-Version"] = "4.0";
+        context.Response.Headers["Allow"] = "GET,HEAD";
+        return;
+    }
 
     await next();
 });
