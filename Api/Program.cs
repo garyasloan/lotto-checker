@@ -5,6 +5,7 @@ using Microsoft.OData.ModelBuilder;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,7 @@ builder.Services.Configure<MvcOptions>(options =>
         "application/xml",
         "application/xml;odata.metadata=minimal",
         "application/xml;odata.metadata=full",
+        "application/xml;odata.metadata=none",
         "application/atom+xml",
         "application/atomsvc+xml"
     };
@@ -43,8 +45,10 @@ builder.Services.Configure<MvcOptions>(options =>
     {
         foreach (var mediaType in odataXmlMediaTypes)
         {
-            if (!formatter.SupportedMediaTypes.Contains(mediaType))
+            if (!formatter.SupportedMediaTypes.Contains(mediaType, StringComparer.OrdinalIgnoreCase))
+            {
                 formatter.SupportedMediaTypes.Add(mediaType);
+            }
         }
     }
 
@@ -52,8 +56,10 @@ builder.Services.Configure<MvcOptions>(options =>
     {
         foreach (var mediaType in odataXmlMediaTypes)
         {
-            if (!formatter.SupportedMediaTypes.Contains(mediaType))
+            if (!formatter.SupportedMediaTypes.Contains(mediaType, StringComparer.OrdinalIgnoreCase))
+            {
                 formatter.SupportedMediaTypes.Add(mediaType);
+            }
         }
     }
 });
