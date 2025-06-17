@@ -6,40 +6,44 @@ using Microsoft.OData.ModelBuilder;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers()
-    .AddOData(opt =>
+// Add OData and XML format support for $metadata (required for Tableau)
+builder.Services.AddControllers().AddOData(opt =>
+{
+    var modelBuilder = new ODataConventionModelBuilder
     {
-        var modelBuilder = new ODataConventionModelBuilder
-        {
-            Namespace = "Lotto",
-            ContainerName = "LottoContainer"
-        };
-        modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
+        Namespace = "Lotto",
+        ContainerName = "LottoContainer"
+    };
+    modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
 
-        opt
-            .AddRouteComponents("odata", modelBuilder.GetEdmModel())
-            .Select()
-            .Filter()
-            .OrderBy()
-            .Expand()
-            .Count()
-            .SetMaxTop(100);
-    });
+    opt
+        .AddRouteComponents("odata", modelBuilder.GetEdmModel())
+        .Select()
+        .Filter()
+        .OrderBy()
+        .Expand()
+        .Count()
+        .SetMaxTop(100);
+});
 
-// Add support for XML in metadata responses
+// Support for XML (needed by Tableau when requesting $metadata)
 builder.Services.Configure<MvcOptions>(options =>
 {
     foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
     {
-        outputFormatter.SupportedMediaTypes.Add("application/xml");
+        if (!outputFormatter.SupportedMediaTypes.Contains("application/xml"))
+            outputFormatter.SupportedMediaTypes.Add("application/xml");
     }
 
     foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>())
     {
-        inputFormatter.SupportedMediaTypes.Add("application/xml");
+        if (!inputFormatter.SupportedMediaTypes.Contains("application/xml"))
+            inputFormatter.SupportedMediaTypes.Add("application/xml");
     }
 });
 
@@ -80,7 +84,7 @@ app.UseStaticFiles();
 
 app.Use(async (context, next) =>
 {
-    // Emulate HEAD by short-circuiting GET without response body
+    // Emulate HEAD requests for Tableau
     if (context.Request.Method == HttpMethods.Head)
     {
         context.Request.Method = HttpMethods.Get;
@@ -114,9 +118,13 @@ app.MapWhen(context =>
 
 app.Run();
 
-static IEdmModel GetEdmModel()
-{
-    var builder = new ODataConventionModelBuilder();
-    builder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
-    return builder.GetEdmModel();
-}
+// static IEdmModel GetEdmModel()
+// {
+//     var builder = new ODataConventionModelBuilder
+//     {
+//         Namespace = "Lotto",
+//         ContainerName = "LottoContainer"
+//     };
+//     builder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
+//     return builder.GetEdmModel();
+// }
