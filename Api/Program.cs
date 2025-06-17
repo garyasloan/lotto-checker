@@ -9,7 +9,7 @@ using Microsoft.OData.ModelBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Supported XML media types for OData
+// XML media types to support for OData
 string[] xmlMediaTypes =
 {
     "application/xml",
@@ -21,7 +21,7 @@ string[] xmlMediaTypes =
     "application/xml;odata.metadata=none; charset=utf-8"
 };
 
-// Build EDM model
+// Define EDM model for OData
 var modelBuilder = new ODataConventionModelBuilder
 {
     Namespace = "Lotto",
@@ -30,7 +30,7 @@ var modelBuilder = new ODataConventionModelBuilder
 modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
 IEdmModel edmModel = modelBuilder.GetEdmModel();
 
-// Add controllers and OData formatters
+// Add controllers and OData services
 builder.Services.AddControllers(options =>
 {
     foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
@@ -62,7 +62,6 @@ builder.Services.AddControllers(options =>
         .SetMaxTop(100);
 });
 
-// Add database and CORS services
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"), sql =>
     {
@@ -90,7 +89,10 @@ var app = builder.Build();
 // Global exception handler
 app.Use(async (context, next) =>
 {
-    try { await next(); }
+    try
+    {
+        await next();
+    }
     catch (Exception ex)
     {
         context.Response.StatusCode = 500;
@@ -102,8 +104,15 @@ app.Use(async (context, next) =>
 app.UseCors("AllowClient");
 app.UseStaticFiles();
 app.UseAuthorization();
+app.MapControllers();
 
-// Custom EDMX metadata route for Tableau (MUST come BEFORE app.MapControllers)
+// ✅ Test route to verify server is live
+app.MapGet("/odata/test", async context =>
+{
+    await context.Response.WriteAsync("✅ EDMX test route hit successfully.");
+});
+
+// ✅ Custom EDMX route to serve XML metadata for Tableau
 app.MapGet("/edmx", async context =>
 {
     context.Response.StatusCode = 200;
@@ -122,25 +131,18 @@ app.MapGet("/edmx", async context =>
     }
 });
 
-// Dummy test route for confirmation
-app.MapGet("/odata/test", async context =>
-{
-    await context.Response.WriteAsync("✅ EDMX test route hit successfully.");
-});
-
-app.MapControllers();
-
 // Fallback for SPA
 app.MapWhen(
     context => !context.Request.Path.StartsWithSegments("/api") &&
-               !context.Request.Path.StartsWithSegments("/odata"),
+               !context.Request.Path.StartsWithSegments("/odata") &&
+               !context.Request.Path.StartsWithSegments("/edmx"),
     builder => builder.Run(async context =>
     {
         context.Response.ContentType = "text/html";
         await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
     }));
 
-// Run migrations at startup
+// Apply EF Core migrations on startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
