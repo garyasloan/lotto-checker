@@ -22,7 +22,7 @@ string[] xmlMediaTypes =
     "application/xml;odata.metadata=none; charset=utf-8"
 };
 
-// Define the EDM model once for reuse
+// Build EDM model once for reuse
 var modelBuilder = new ODataConventionModelBuilder
 {
     Namespace = "Lotto",
@@ -31,7 +31,7 @@ var modelBuilder = new ODataConventionModelBuilder
 modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
 IEdmModel edmModel = modelBuilder.GetEdmModel();
 
-// Add OData and formatters
+// Add OData and XML formatters
 builder.Services.AddControllers(options =>
 {
     foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
@@ -67,7 +67,7 @@ builder.Services.AddControllers(options =>
         .SetMaxTop(100);
 });
 
-// Other services
+// Database and CORS
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"), sql =>
     {
@@ -97,7 +97,7 @@ app.Use(async (context, next) =>
 {
     try
     {
-        await next.Invoke();
+        await next();
     }
     catch (Exception ex)
     {
@@ -110,10 +110,10 @@ app.Use(async (context, next) =>
 app.UseCors("AllowClient");
 app.UseStaticFiles();
 app.UseAuthorization();
-app.MapControllers(); // MUST come before metadata route
+app.MapControllers();
 
-// ✅ Override the default OData $metadata handler to return XML for Tableau
-app.MapGet("/odata/$metadata", async context =>
+// ✅ Custom EDMX endpoint for Tableau
+app.MapGet("/odata/$edmx", async context =>
 {
     context.Response.StatusCode = 200;
     context.Response.ContentType = "application/xml";
@@ -141,7 +141,7 @@ app.MapWhen(
         await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
     }));
 
-// Apply migrations
+// Apply migrations at startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
