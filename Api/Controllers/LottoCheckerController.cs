@@ -18,7 +18,7 @@ namespace API.Controllers
         }
 
         [EnableQuery]
-        [HttpGet]
+        // [HttpGet]
         [AcceptVerbs("GET", "HEAD")] 
         [Produces("application/json;odata.metadata=minimal")]
         public IQueryable<NumberOccurrenceDTO> Get()
