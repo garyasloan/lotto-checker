@@ -136,18 +136,34 @@ app.MapGet("/edmx", async context =>
     await memoryStream.CopyToAsync(context.Response.Body);
 });
 
-// ❌ Temporarily disable /odata/$metadata override due to middleware conflict
-// app.MapGet("/odata/$metadata", ...);
+// ✅ Properly override /odata/$metadata to return EDMX XML (for Tableau)
+app.MapGet("/odata/$metadata", async context =>
+{
+    context.Response.StatusCode = 200;
+    context.Response.ContentType = "application/xml";
 
-app.MapWhen(
-    context => !context.Request.Path.StartsWithSegments("/api") &&
-               !context.Request.Path.StartsWithSegments("/odata") &&
-               !context.Request.Path.StartsWithSegments("/edmx"),
-    builder => builder.Run(async context =>
+    var settings = new System.Xml.XmlWriterSettings
     {
-        context.Response.ContentType = "text/html";
-        await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
-    }));
+        Async = true,
+        Indent = true
+    };
+
+    using var memoryStream = new MemoryStream();
+    using (var xmlWriter = System.Xml.XmlWriter.Create(memoryStream, settings))
+    {
+        if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
+        {
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsync("Failed to generate metadata XML.");
+            return;
+        }
+
+        await xmlWriter.FlushAsync();
+    }
+
+    memoryStream.Position = 0;
+    await memoryStream.CopyToAsync(context.Response.Body);
+});
 
 using (var scope = app.Services.CreateScope())
 {
