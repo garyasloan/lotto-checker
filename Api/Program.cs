@@ -9,7 +9,7 @@ using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure controllers and OData
+// Configure controllers and OData with XML media types
 builder.Services.AddControllers(options =>
 {
     var xmlTypes = new[]
@@ -27,8 +27,10 @@ builder.Services.AddControllers(options =>
     {
         foreach (var type in xmlTypes)
         {
-            if (!formatter.SupportedMediaTypes.Contains(type))
-                formatter.SupportedMediaTypes.Add(type);
+            if (!formatter.SupportedMediaTypes.Any(mt => string.Equals(mt.ToString(), type, StringComparison.OrdinalIgnoreCase)))
+            {
+                formatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(type));
+            }
         }
     }
 
@@ -36,8 +38,10 @@ builder.Services.AddControllers(options =>
     {
         foreach (var type in xmlTypes)
         {
-            if (!formatter.SupportedMediaTypes.Contains(type))
-                formatter.SupportedMediaTypes.Add(type);
+            if (!formatter.SupportedMediaTypes.Any(mt => string.Equals(mt.ToString(), type, StringComparison.OrdinalIgnoreCase)))
+            {
+                formatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(type));
+            }
         }
     }
 })
@@ -85,7 +89,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Global exception handling
+// Global exception handler
 app.Use(async (context, next) =>
 {
     try { await next(); }
@@ -97,14 +101,13 @@ app.Use(async (context, next) =>
     }
 });
 
-// Normalize $metadata content type
+// Normalize metadata Accept/Content-Type for Tableau
 app.Use(async (context, next) =>
 {
     var isMetadata = context.Request.Path.Value?.EndsWith("$metadata") == true;
 
     if (isMetadata)
     {
-        // Set Accept header
         context.Request.Headers["Accept"] = "application/xml;odata.metadata=minimal";
     }
 
@@ -125,7 +128,7 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("AllowClient");
 app.UseStaticFiles();
 
-// HEAD support for Tableau
+// Support HEAD requests (important for Tableau probing $metadata)
 app.Use(async (context, next) =>
 {
     if (context.Request.Method == HttpMethods.Head)
@@ -151,7 +154,7 @@ app.Use(async (context, next) =>
 app.UseAuthorization();
 app.MapControllers();
 
-// SPA fallback for frontend
+// SPA fallback
 app.MapWhen(
     context => !context.Request.Path.StartsWithSegments("/api") &&
                !context.Request.Path.StartsWithSegments("/odata"),
