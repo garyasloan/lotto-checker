@@ -105,7 +105,35 @@ app.Use(async (context, next) =>
 app.UseCors("AllowClient");
 app.UseStaticFiles();
 app.UseAuthorization();
-app.MapControllers();
+
+// ✅ Override /odata/$metadata to force XML (before MapControllers)
+app.MapGet("/odata/$metadata", async context =>
+{
+    context.Response.StatusCode = 200;
+    context.Response.ContentType = "application/xml";
+
+    var settings = new System.Xml.XmlWriterSettings
+    {
+        Async = true,
+        Indent = true
+    };
+
+    using var memoryStream = new MemoryStream();
+    using (var xmlWriter = System.Xml.XmlWriter.Create(memoryStream, settings))
+    {
+        if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
+        {
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsync("Failed to generate metadata XML.");
+            return;
+        }
+
+        await xmlWriter.FlushAsync();
+    }
+
+    memoryStream.Position = 0;
+    await memoryStream.CopyToAsync(context.Response.Body);
+});
 
 // ✅ Serve EDMX metadata explicitly for Tableau at /edmx
 app.MapGet("/edmx", async context =>
@@ -136,34 +164,7 @@ app.MapGet("/edmx", async context =>
     await memoryStream.CopyToAsync(context.Response.Body);
 });
 
-// ✅ Proper override for /odata/$metadata to return XML instead of JSON
-app.MapGet("/odata/$metadata", async context =>
-{
-    context.Response.StatusCode = 200;
-    context.Response.ContentType = "application/xml";
-
-    var settings = new System.Xml.XmlWriterSettings
-    {
-        Async = true,
-        Indent = true
-    };
-
-    using var memoryStream = new MemoryStream();
-    using (var xmlWriter = System.Xml.XmlWriter.Create(memoryStream, settings))
-    {
-        if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
-        {
-            context.Response.StatusCode = 500;
-            await context.Response.WriteAsync("Failed to generate metadata XML.");
-            return;
-        }
-
-        await xmlWriter.FlushAsync();
-    }
-
-    memoryStream.Position = 0;
-    await memoryStream.CopyToAsync(context.Response.Body);
-});
+app.MapControllers();
 
 app.MapWhen(
     context => !context.Request.Path.StartsWithSegments("/api") &&
