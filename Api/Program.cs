@@ -124,16 +124,21 @@ app.MapGet("/edmx", async context =>
         Indent = true
     };
 
-    using var xmlWriter = System.Xml.XmlWriter.Create(context.Response.Body, settings);
-
-    if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
+    using var memoryStream = new MemoryStream();
+    using (var xmlWriter = System.Xml.XmlWriter.Create(memoryStream, settings))
     {
-        context.Response.StatusCode = 500;
-        await context.Response.WriteAsync("Failed to generate metadata XML.");
-        return;
+        if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
+        {
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsync("Failed to generate metadata XML.");
+            return;
+        }
+
+        await xmlWriter.FlushAsync();
     }
 
-    await xmlWriter.FlushAsync(); // ✅ avoid .Close() which causes sync flush
+    memoryStream.Position = 0;
+    await memoryStream.CopyToAsync(context.Response.Body);
 });
 
 // Fallback for SPA
