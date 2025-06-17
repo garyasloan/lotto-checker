@@ -107,7 +107,12 @@ app.Use(async (context, next) =>
     }
 });
 
-//  Override the default OData $metadata handler to return XML for Tableau
+app.UseCors("AllowClient");
+app.UseStaticFiles();
+app.UseAuthorization();
+app.MapControllers(); // MUST come before metadata route
+
+// ✅ Override the default OData $metadata handler to return XML for Tableau
 app.MapGet("/odata/$metadata", async context =>
 {
     context.Response.StatusCode = 200;
@@ -125,11 +130,6 @@ app.MapGet("/odata/$metadata", async context =>
         await context.Response.WriteAsync("Failed to generate metadata XML.");
     }
 });
-
-app.UseCors("AllowClient");
-app.UseStaticFiles();
-app.UseAuthorization();
-app.MapControllers();
 
 // Fallback for SPA
 app.MapWhen(
