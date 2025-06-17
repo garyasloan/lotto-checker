@@ -99,13 +99,12 @@ app.Use(async (context, next) =>
     }
 });
 
-// Force correct Accept for $metadata to avoid XML formatter mismatch
+// Force valid Accept header for $metadata to prevent ODataContentTypeException
 app.Use(async (context, next) =>
 {
     if (context.Request.Path.Value?.EndsWith("$metadata") == true)
     {
-        context.Request.Headers["Accept"] = "application/xml";
-        context.Response.ContentType = "application/xml";
+        context.Request.Headers["Accept"] = "application/xml;odata.metadata=minimal";
     }
 
     await next();
