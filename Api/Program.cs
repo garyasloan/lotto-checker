@@ -31,7 +31,7 @@ builder.Services.AddControllers().AddOData(opt =>
 // Add XML support for OData formatters
 builder.Services.Configure<MvcOptions>(options =>
 {
-    var odataXmlMediaTypes = new[]
+    var mediaTypes = new[]
     {
         "application/xml",
         "application/xml;odata.metadata=minimal",
@@ -44,24 +44,28 @@ builder.Services.Configure<MvcOptions>(options =>
         "application/atomsvc+xml"
     };
 
-    foreach (var formatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
+    foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
     {
-        foreach (var mediaType in odataXmlMediaTypes)
+        foreach (var mt in mediaTypes)
         {
-            if (!formatter.SupportedMediaTypes.Contains(mediaType, StringComparer.OrdinalIgnoreCase))
+            var parsed = MediaTypeHeaderValue.Parse(mt);
+            if (!outputFormatter.SupportedMediaTypes.Any(existing =>
+                string.Equals(existing.ToString(), parsed.ToString(), StringComparison.OrdinalIgnoreCase)))
             {
-                formatter.SupportedMediaTypes.Add(mediaType);
+                outputFormatter.SupportedMediaTypes.Add(parsed);
             }
         }
     }
 
-    foreach (var formatter in options.InputFormatters.OfType<ODataInputFormatter>())
+    foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>())
     {
-        foreach (var mediaType in odataXmlMediaTypes)
+        foreach (var mt in mediaTypes)
         {
-            if (!formatter.SupportedMediaTypes.Contains(mediaType, StringComparer.OrdinalIgnoreCase))
+            var parsed = MediaTypeHeaderValue.Parse(mt);
+            if (!inputFormatter.SupportedMediaTypes.Any(existing =>
+                string.Equals(existing.ToString(), parsed.ToString(), StringComparison.OrdinalIgnoreCase)))
             {
-                formatter.SupportedMediaTypes.Add(mediaType);
+                inputFormatter.SupportedMediaTypes.Add(parsed);
             }
         }
     }
