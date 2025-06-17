@@ -1,5 +1,6 @@
 using API.Data;
 using API.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,6 @@ using Microsoft.OData.ModelBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// XML media types to support for OData
 string[] xmlMediaTypes =
 {
     "application/xml",
@@ -21,7 +21,6 @@ string[] xmlMediaTypes =
     "application/xml;odata.metadata=none; charset=utf-8"
 };
 
-// Define EDM model for OData
 var modelBuilder = new ODataConventionModelBuilder
 {
     Namespace = "Lotto",
@@ -30,7 +29,6 @@ var modelBuilder = new ODataConventionModelBuilder
 modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
 IEdmModel edmModel = modelBuilder.GetEdmModel();
 
-// Add controllers and OData services
 builder.Services.AddControllers(options =>
 {
     foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
@@ -38,7 +36,9 @@ builder.Services.AddControllers(options =>
         foreach (var mediaType in xmlMediaTypes)
         {
             if (!outputFormatter.SupportedMediaTypes.Contains(mediaType))
+            {
                 outputFormatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(mediaType));
+            }
         }
     }
 
@@ -47,7 +47,9 @@ builder.Services.AddControllers(options =>
         foreach (var mediaType in xmlMediaTypes)
         {
             if (!inputFormatter.SupportedMediaTypes.Contains(mediaType))
+            {
                 inputFormatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(mediaType));
+            }
         }
     }
 })
@@ -86,7 +88,6 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Global exception handler
 app.Use(async (context, next) =>
 {
     try
@@ -106,53 +107,40 @@ app.UseStaticFiles();
 app.UseAuthorization();
 app.MapControllers();
 
-// ✅ Test route to verify server is live
-app.MapGet("/odata/test", async context =>
+// ✅ Serve EDMX XML metadata explicitly for Tableau
+app.Use(async (context, next) =>
 {
-    await context.Response.WriteAsync("✅ EDMX test route hit successfully.");
-});
-
-// ✅ Custom EDMX route to serve XML metadata for Tableau
-app.MapGet("/edmx", async context =>
-{
-    context.Response.StatusCode = 200;
-    context.Response.ContentType = "application/xml";
-
-    var settings = new System.Xml.XmlWriterSettings
+    if (context.Request.Path.Equals("/odata/$edmx", StringComparison.OrdinalIgnoreCase))
     {
-        Async = true,
-        Indent = true
-    };
+        context.Response.StatusCode = 200;
+        context.Response.ContentType = "application/xml";
 
-    using var memoryStream = new MemoryStream();
-    using (var xmlWriter = System.Xml.XmlWriter.Create(memoryStream, settings))
-    {
+        using var xmlWriter = System.Xml.XmlWriter.Create(context.Response.Body, new System.Xml.XmlWriterSettings
+        {
+            Async = true,
+            Indent = true
+        });
+
         if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
         {
             context.Response.StatusCode = 500;
             await context.Response.WriteAsync("Failed to generate metadata XML.");
-            return;
         }
-
-        await xmlWriter.FlushAsync();
+        return;
     }
 
-    memoryStream.Position = 0;
-    await memoryStream.CopyToAsync(context.Response.Body);
+    await next();
 });
 
-// Fallback for SPA
 app.MapWhen(
     context => !context.Request.Path.StartsWithSegments("/api") &&
-               !context.Request.Path.StartsWithSegments("/odata") &&
-               !context.Request.Path.StartsWithSegments("/edmx"),
+               !context.Request.Path.StartsWithSegments("/odata"),
     builder => builder.Run(async context =>
     {
         context.Response.ContentType = "text/html";
         await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
     }));
 
-// Apply EF Core migrations on startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
