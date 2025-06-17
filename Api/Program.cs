@@ -115,27 +115,25 @@ app.MapGet("/odata/$metadata", async context =>
     context.Response.StatusCode = 200;
     context.Response.ContentType = "application/xml";
 
-    var settings = new System.Xml.XmlWriterSettings
+    await using var outputStream = context.Response.BodyWriter.AsStream();
+    using var xmlWriter = System.Xml.XmlWriter.Create(outputStream, new System.Xml.XmlWriterSettings
     {
         Async = true,
         Indent = true
-    };
+    });
 
-    using var memoryStream = new MemoryStream();
-    using (var xmlWriter = System.Xml.XmlWriter.Create(memoryStream, settings))
+    if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(
+            edmModel,
+            xmlWriter,
+            Microsoft.OData.Edm.Csdl.CsdlTarget.OData,
+            out var errors))
     {
-        if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(edmModel, xmlWriter, Microsoft.OData.Edm.Csdl.CsdlTarget.OData, out var errors))
-        {
-            context.Response.StatusCode = 500;
-            await context.Response.WriteAsync("Failed to generate metadata XML.");
-            return;
-        }
-
-        await xmlWriter.FlushAsync();
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("Failed to generate metadata XML.");
+        return;
     }
 
-    memoryStream.Position = 0;
-    await memoryStream.CopyToAsync(context.Response.Body);
+    await xmlWriter.FlushAsync();
 });
 
 app.MapWhen(
