@@ -5,8 +5,6 @@ using Microsoft.OData.ModelBuilder;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,7 +84,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Enable detailed error logging for XML crash
+// Add global error logging
 app.Use(async (context, next) =>
 {
     try
@@ -99,6 +97,18 @@ app.Use(async (context, next) =>
         context.Response.ContentType = "text/plain";
         await context.Response.WriteAsync("UNHANDLED EXCEPTION:\n" + ex.ToString());
     }
+});
+
+// Force correct Accept for $metadata to avoid XML formatter mismatch
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.Value?.EndsWith("$metadata") == true)
+    {
+        context.Request.Headers["Accept"] = "application/xml";
+        context.Response.ContentType = "application/xml";
+    }
+
+    await next();
 });
 
 using var scope = app.Services.CreateScope();
