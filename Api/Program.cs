@@ -50,15 +50,16 @@ app.UseStaticFiles();
 
 app.Use(async (context, next) =>
 {
-    if (context.Request.Path.StartsWithSegments("/odata") &&
-        !context.Response.Headers.ContainsKey("OData-Version"))
+    context.Response.OnStarting(() =>
     {
-        context.Response.OnStarting(() =>
+        if (context.Request.Path.StartsWithSegments("/odata") &&
+            !context.Response.Headers.ContainsKey("OData-Version"))
         {
             context.Response.Headers["OData-Version"] = "4.0";
-            return Task.CompletedTask;
-        });
-    }
+        }
+
+        return Task.CompletedTask;
+    });
 
     await next();
 });
