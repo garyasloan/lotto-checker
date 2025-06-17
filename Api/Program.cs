@@ -103,8 +103,8 @@ app.UseCors("AllowClient");
 app.UseStaticFiles();
 app.UseAuthorization();
 
-// ✅ Custom EDMX metadata route for Tableau (MUST come BEFORE app.MapControllers)
-app.MapGet("/odata/$edmx", async context =>
+// Custom EDMX metadata route for Tableau (MUST come BEFORE app.MapControllers)
+app.MapGet("/edmx", async context =>
 {
     context.Response.StatusCode = 200;
     context.Response.ContentType = "application/xml";
@@ -122,7 +122,7 @@ app.MapGet("/odata/$edmx", async context =>
     }
 });
 
-// ✅ Dummy test route for confirmation
+// Dummy test route for confirmation
 app.MapGet("/odata/test", async context =>
 {
     await context.Response.WriteAsync("✅ EDMX test route hit successfully.");
