@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 namespace API.Controllers
 {
 
-public class NumberOccurrencesController : ODataController
+    public class NumberOccurrencesController : ODataController
     {
         private readonly AppDbContext _context;
 
@@ -28,11 +28,11 @@ public class NumberOccurrencesController : ODataController
                 .AsQueryable();
         }
 
-        [HttpHead]
-        public IActionResult Head()
-        {
-            return Ok();
-        }
+        // [HttpHead]
+         public IActionResult Head()
+         {
+             return Ok();
+         }
     }
 
     [Route("api/[controller]")]
