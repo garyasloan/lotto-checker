@@ -1,0 +1,315 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 20251.25.0520.1026                               -->
+<workbook original-version='18.1' source-build='2025.1.2 (20251.25.0520.1026)' source-platform='win' version='18.1' xml:base='https://public.tableau.com' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <document-format-change-manifest>
+    <AnimationOnByDefault />
+    <MarkAnimation />
+    <ObjectModelEncapsulateLegacy />
+    <ObjectModelExtractV2 />
+    <ObjectModelTableType />
+    <SchemaViewerObjectModel />
+    <SheetIdentifierTracking />
+    <SortTagCleanup />
+    <_.fcp.VConnDownstreamExtractsWithWarnings.true...VConnDownstreamExtractsWithWarnings />
+    <WindowsPersistSimpleIdentifiers />
+  </document-format-change-manifest>
+  <repository-location id='NumberOccurrences' path='/workbooks' revision='1.5' />
+  <preferences>
+    <preference name='ui.encoding.shelf.height' value='24' />
+    <preference name='ui.shelf.height' value='26' />
+  </preferences>
+  <datasources>
+    <datasource caption='NumberOccurrences' inline='true' name='federated.0pqm7tp1nr7pmf19kc82q0f2iu7b' version='18.1'>
+      <connection class='federated'>
+        <named-connections>
+          <named-connection caption='NumberOccurrences' name='textscan.1f726d8113c77y11lc0r20cgy5wh'>
+            <connection class='textscan' directory='C:/AT/Tableau' filename='NumberOccurrences.csv' password='' server='' workgroup-auth-mode='as-is' />
+          </named-connection>
+        </named-connections>
+        <relation connection='textscan.1f726d8113c77y11lc0r20cgy5wh' name='NumberOccurrences.csv' table='[NumberOccurrences#csv]' type='table'>
+          <columns character-set='UTF-8' header='yes' locale='en_US' separator=','>
+            <column datatype='integer' name='Label' ordinal='0' />
+            <column datatype='integer' name='Count' ordinal='1' />
+          </columns>
+        </relation>
+        <metadata-records>
+          <metadata-record class='capability'>
+            <remote-name />
+            <remote-type>0</remote-type>
+            <parent-name>[NumberOccurrences.csv]</parent-name>
+            <remote-alias />
+            <aggregation>Count</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='character-set'>&quot;UTF-8&quot;</attribute>
+              <attribute datatype='string' name='collation'>&quot;en_US&quot;</attribute>
+              <attribute datatype='string' name='field-delimiter'>&quot;,&quot;</attribute>
+              <attribute datatype='string' name='header-row'>&quot;true&quot;</attribute>
+              <attribute datatype='string' name='locale'>&quot;en_US&quot;</attribute>
+              <attribute datatype='string' name='single-char'>&quot;&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>Label</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[Label]</local-name>
+            <parent-name>[NumberOccurrences.csv]</parent-name>
+            <remote-alias>Label</remote-alias>
+            <ordinal>0</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[NumberOccurrences.csv_8BEC9233BEB0421597744A88703B7539]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>Count</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[Count]</local-name>
+            <parent-name>[NumberOccurrences.csv]</parent-name>
+            <remote-alias>Count</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[NumberOccurrences.csv_8BEC9233BEB0421597744A88703B7539]</object-id>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column caption='Ball Number' datatype='integer' name='[Label]' role='measure' type='ordinal' />
+      <column caption='NumberOccurrences.csv' datatype='table' name='[__tableau_internal_object_id__].[NumberOccurrences.csv_8BEC9233BEB0421597744A88703B7539]' role='measure' type='quantitative' />
+      <extract _.fcp.VConnDownstreamExtractsWithWarnings.true...user-specific='false' count='-1' enabled='true' object-id='' units='records'>
+        <connection access_mode='readonly' author-locale='en_US' class='hyper' dbname='C:/Users/garya/AppData/Local/Temp/TableauTemp/#TableauTemp_1kxmk6q0ttu5j1120xhfb1igva63.hyper' default-settings='hyper' schema='Extract' sslmode='' tablename='Extract' update-time='06/17/2025 11:33:30 PM' username='tableau_internal_user'>
+          <relation name='Extract' table='[Extract].[Extract]' type='table' />
+          <metadata-records>
+            <metadata-record class='column'>
+              <remote-name>Label</remote-name>
+              <remote-type>20</remote-type>
+              <local-name>[Label]</local-name>
+              <parent-name>[Extract]</parent-name>
+              <remote-alias>Label</remote-alias>
+              <ordinal>0</ordinal>
+              <family>NumberOccurrences.csv</family>
+              <local-type>integer</local-type>
+              <aggregation>Sum</aggregation>
+              <approx-count>47</approx-count>
+              <contains-null>true</contains-null>
+              <object-id>[NumberOccurrences.csv_8BEC9233BEB0421597744A88703B7539]</object-id>
+            </metadata-record>
+            <metadata-record class='column'>
+              <remote-name>Count</remote-name>
+              <remote-type>20</remote-type>
+              <local-name>[Count]</local-name>
+              <parent-name>[Extract]</parent-name>
+              <remote-alias>Count</remote-alias>
+              <ordinal>1</ordinal>
+              <family>NumberOccurrences.csv</family>
+              <local-type>integer</local-type>
+              <aggregation>Sum</aggregation>
+              <approx-count>14</approx-count>
+              <contains-null>true</contains-null>
+              <object-id>[NumberOccurrences.csv_8BEC9233BEB0421597744A88703B7539]</object-id>
+            </metadata-record>
+          </metadata-records>
+        </connection>
+      </extract>
+      <layout dim-ordering='alphabetic' measure-ordering='alphabetic' show-structure='true' />
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+      </semantic-values>
+      <object-graph>
+        <objects>
+          <object caption='NumberOccurrences.csv' id='NumberOccurrences.csv_8BEC9233BEB0421597744A88703B7539'>
+            <properties context=''>
+              <relation connection='textscan.1f726d8113c77y11lc0r20cgy5wh' name='NumberOccurrences.csv' table='[NumberOccurrences#csv]' type='table'>
+                <columns character-set='UTF-8' header='yes' locale='en_US' separator=','>
+                  <column datatype='integer' name='Label' ordinal='0' />
+                  <column datatype='integer' name='Count' ordinal='1' />
+                </columns>
+              </relation>
+            </properties>
+            <properties context='extract'>
+              <relation name='Extract' table='[Extract].[Extract]' type='table' />
+            </properties>
+          </object>
+        </objects>
+      </object-graph>
+    </datasource>
+  </datasources>
+  <worksheets>
+    <worksheet name='Sheet 1'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run>Ball Number (1-47) Occurrence  Since May 15th, 2024
+</run>
+            <run fontsize='10'>(Hotest to Coldest - Generated with Tableau)</run>
+            <run>Æ&#10;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='NumberOccurrences' name='federated.0pqm7tp1nr7pmf19kc82q0f2iu7b' />
+          </datasources>
+          <datasource-dependencies datasource='federated.0pqm7tp1nr7pmf19kc82q0f2iu7b'>
+            <column datatype='integer' name='[Count]' role='measure' type='quantitative' />
+            <column caption='Ball Number' datatype='integer' name='[Label]' role='measure' type='ordinal' />
+            <column-instance column='[Label]' derivation='None' name='[none:Label:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[Count]' derivation='Sum' name='[sum:Count:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <computed-sort column='[federated.0pqm7tp1nr7pmf19kc82q0f2iu7b].[none:Label:ok]' direction='DESC' using='[federated.0pqm7tp1nr7pmf19kc82q0f2iu7b].[sum:Count:qk]' />
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <format attr='title' class='0' field='[federated.0pqm7tp1nr7pmf19kc82q0f2iu7b].[sum:Count:qk]' scope='rows' value='Occurrence Count' />
+          </style-rule>
+          <style-rule element='mark'>
+            <encoding attr='color' field='[federated.0pqm7tp1nr7pmf19kc82q0f2iu7b].[sum:Count:qk]' palette='red_blue_diverging_10_0' reverse='true' type='interpolated' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <color column='[federated.0pqm7tp1nr7pmf19kc82q0f2iu7b].[sum:Count:qk]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>[federated.0pqm7tp1nr7pmf19kc82q0f2iu7b].[sum:Count:qk]</rows>
+        <cols>[federated.0pqm7tp1nr7pmf19kc82q0f2iu7b].[none:Label:ok]</cols>
+      </table>
+      <simple-id uuid='{265CEF45-031B-4C4F-B6FD-50AC49919DE9}' />
+    </worksheet>
+  </worksheets>
+  <windows source-height='30'>
+    <window class='worksheet' maximized='true' name='Sheet 1'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{7FE07279-AC52-4B1A-B10F-EA09ABCEF8DA}' />
+    </window>
+  </windows>
+  <thumbnails>
+    <thumbnail height='192' name='Sheet 1' width='192'>
+      iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAACXBIWXMAAA7DAAAOwwHHb6hk
+      AAAS8UlEQVR4nO2d228bSXbGv6pqXsSbSFGSbUk79nhsj+3x7OxcPJiZBfYCLJAAk7wlL3lM
+      9k/YhwAJkL8gTwHymgAJkLwsFshDECCLBEGymNmH3c1c4hlL9uhOSdSNd7JvVXkgRVnuriZp
+      WRxJdX6AAZnVPHWquj92d/HrQ6aUUiAIQ+HfdgIE8W1CAiCMhgRAGA0JgDAaEgBhNCQAwmhO
+      LQAp5cvIgyC+FU4tAPoagbjI0CUQYTQkAMJoSACE0ZAACKMZWgDSd7G+vgFfKlQrFdC9L3EZ
+      sIbd0LFtMOlid6+MxcdP8eFHH0IwBSklGGNnmSNBnBlDnwFcuw1bxdCuHsJz22h0XACgg5+4
+      0LBhnwfoNOvY2TvA7NV5cHiIx5NgDPB9H0KIs86TIM6EoQWggwRAXGRoFYgwGhIAYTQkAMJo
+      hl4GjaKzsw+/Ywdej01mEc9nX0YXBHEmvJSb4F/90c+w/ctPA21v/MVP8caf/9lpwhPEmUKX
+      QITRkAAIoyEBEEZDAiCMhgRAGM3Qy6Dt+iEWl1aQn53GwdY2bn73bUwmXsoqKkF8awx9BFvx
+      BCaL05jN56EkRyYm4Ps+fN/XPhgvpYLneS8tWYJ42QwtgGa9ikajASgPrVYbtncNqXjXBKez
+      RHPOYFl0liDOL0Mfnfnpa8hPXzvLXAhi7NBNMGE0JADCaEgAhNGQAAijIQEQRkMCIIyGBEAY
+      DQmAMBoSAGE0JADCaIYWQLtxiC+/+BI7O1v4388fwZNUHZe4+AztBUqmJzGZq2K/0sDrc5PY
+      a7qYSQlygxIXmqEFsF9aw26lgel8Go9Wd3H/rWsQonsCITcocVEZ+uicnr+B6fnu369cP6t0
+      CGK80E0wYTQkAMJoSACE0ZAACKMhARBGQwIgjIYEQBgNCYAwGhIAYTQkAMJohhaA8j3s7h3A
+      c1p48s0q5Ol+WIYgzgVDe4Fc10G90YDbPESrUkPdmUfGYpBSat2gSir4vg+0msDBbkjvFnB1
+      4YWTJ4jTMrQAOOdoNWqQMQucSzieAo8LKKW0blDGGDjn8Bb/D84//G2wvTiDib/86xfPniBO
+      ydACUEphdnYW2WwWrbaNqZQFxpj24AcAMPS20W8Q+X6COGOGFkAsMYHZ2QkAwMTExJklRBDj
+      hFaBCKMhARBGQwIgjIYEQBjNuXli3fmbvwJ8P/C69cc/BZ+/Abn4Jbx//edAO8vlEfvTn40j
+      ReIScm4EgHYzVACQEkD3m2i0m4FmFYufdWbEJYYugQijIQEQRkMCIIyGBEAYzdACsFs1LD5d
+      QbOyhy8eLVJxXOJSMPQqUCKVQypRw85OGdz30HJ8pGNsqOK4vi/Dg6pniudq9OT7PqTnQcmQ
+      FaIeRzH4J//eXzU60c2Dh1CTU2BPH4Ftrwfbr8xD3XoA1Cvgn/862AED5Ee/p+2fuLgMLYB2
+      o4JSqYSFhXm09vagFCCEADBEcVzBEVojmh0Xz3U0plAhBLhlwecCOgkcxZBPHwF+sCd+500w
+      y4Lc2wKefBmSBoO4+z0o14YKaQcYrB98rOmduMgMLYCJTB7vv/8+AGBubv7MEiKIcUI3wYTR
+      kAAIoyEBEEZDAiCM5vyY4S4IzpNHUE4n8Lo1dwMiPwXZbsJdfhz63vi9t+kZ6HMGCWBEvJ1N
+      qFYj8LooTAP5KSjHgbe5Gvre+L23zzo9YkToEogwGhIAYTShl0DSd2E7ClK6SKfT486JIMZG
+      6Bng8Wf/jX/8p5/j88fL486HIMZKqABu3X8HczM5FCYn+695Tgel7TKgFEqbGyAzKHEZCL0E
+      YowjsFjHOFzHRqdxiNWNbcxcnYeCPFduUNb7FxYDngemVGi7UrIbw5ehnwjqmT6gGavvS8Dz
+      IMOea342DwDVtgMZ8gmSSlhIWAId10fbCZr6LMGRTcYglUK15YT2MZmKgzOGeseFFzLvE3EL
+      yVi3pmtlQAwTCBeAiGF2pgjbPl7v9pwONjfWYXeKsFtVNDouCunuA+nnxg2qaRdCdN2g2iK+
+      HMKyoAQP1SEDIPp5hscQgsOyLPhCwI3KgzEslbbRsoNb3VuYxrWpLPYPGni6fRhoz6eTeOe1
+      a7BdD1+slkP7+OjudxCPWVgt7+Gg0Q60v3olj1evFOB4vjbGh3cXEI+ZsUKuHaXrOqgfHu+E
+      +EQG7733Hiwrhlu3boMxWkAiLj6hR7H0Otg7qJ84DXLOEY/HwXm35LkhZ0jikhN6BhBWClOT
+      E5i6cnXc+RDEWAk5A7j4ze++wvd/9GM0DrbHnxFBjJEQAViIqSb+6z//A9lp+vki4nITcgnE
+      8NbDD7G8soZCPjn+jIhzg5QqfFWMAZwxKKW03wcJ3r1J9DUb8N6vB0mlQleWj/p4GTGi8gy9
+      B3Dbh/jFz/8Fbz18Fz/54ffD30lcev7tqz2sHwat3+9+J4f3rk/im702fvl4P9CeTQj8ycM5
+      AMDffbIBP+Tg+8M3ZzA3mcT/PD3EV9vBmq+vX0njR7enAAB//+lmaBmeP3gwg/l8Er96WsGj
+      7aBD985sCj++U8Ruw8EvPgtf8g0VAI8l8fHHv494in4KibjchC6DMqWwtvwE+9WgqgjiMhEq
+      ACV9tNo2UhOpcedDEGMl/OtczlEul3GwvzfmdAhivISfAXwPnY4Nxz128Piuje3yHtxOE4uL
+      T6k2KHEp0JrhPvrBD/HgzTf6r0ml0G63IHNppC2FlusjbZ2v2qAXxQ2qiyFlNw8ZUt+0+7aj
+      +Yzuw/Pw4vsEgO/58DjTx+jNl6/ZJyfmS4P0uzGU5oNU9eYiMob0uzHUoPnSj1VjhlOwm3Vs
+      bJVx63p3OUv5HvZ3y2BuBzVHYVpwCNE9XMgNOpobVGek4rwbg/PwK1PWm6+wZcVn+7Asa+A+
+      kdrZBIQ1IAbr5im4CM8Tx/tEB+/NF+OafdKbi8gY/CjP6PkSQj/W0B6U8rG+voni/PX+ayKW
+      wN27d2FZFqY9D5YmcYK4SIR/DyASuPXadTSbx8ugwoohk4mNLTGCGAfac4xSCq1m8Bs6grhM
+      hF48+U4TLVeAyeibEIK46IQ/DxBLo5BLIl2YGnc+BDFWNN8EeyhtbGB3vzLufAhirIQIQOGL
+      3/4OPlPIFwrjz4ggxkiIADzsVjp4753vobS+Nv6MCGKMhAgghg8+eBsHlTo+/OD98WdEEGMk
+      9CY4V5hBrjAz7lwIYuxQcR/CaEgAhNEMLQC7VcPXS8uo7Jbwm99+ho6nd9gRxEVh6AKQiVQO
+      mYkaqi0X91+ZRqXtYSYlyA7d74Ps0P08cXHs0EOfAdqNCra2thCzBL7erKCYsiCEOLb4hgXn
+      R3ZUTTc9u6plWeFHLo7tvVxjvQXQj6Hzpw6yCLMje68mzyN7bzfPaDu0EPo8j/I4rR16mD4G
+      75OIGC/JDh1lZx7WDh0ZY2g7tP4wH/oMMJHJ4+HDhwCAuXkqmEVcDugmmDAaEgBhNCQAwmhI
+      AITRkAAIoyEBEEZDAiCMhgRAGA0JgDAaEgBhNCMLoF0/xKOvFuFqDFsEcZEY+efAq5UK2o0a
+      2q4EtxS5Qft9kBu0nycujht0ZAF4ngdIF64HiETXDUjFcak47ok8ccGL40ax8OptLLx6e9S3
+      EcS5hG6CCaMhARBGQwIgjIYEQBgNCYAwGhIAYTQkAMJoSACE0ZAACKMhARBGM7IAlJLY39+H
+      1BilCOIiMbIXaHvtGzRUEvkCoKB6jkGNGFTXkafXitI6DvtbqAF9QO98PNEeuY0akOcwfQzR
+      j1IRo+iOUA3aRqmoqRh6vqLGM7C9n+eL7xOoAWMZkMPJPAeNRR9j5DOA67qwK9vYqTmQUkZ2
+      oJTqbaO3o0opu/bfQTE0ttlnY+jnUvVzDW9HZJ7q2Tw1vSjVbY86M8peHoNi6He86vURMZ9q
+      yLmIeJ5DyV6e+h0buU9OztegPF88xuD9Ovj4ewE36C2srG7i6mQcvGeX1Rad5QxCCCiNvRdg
+      /SKtvsYOzTkHFwK+Ngb6MXTD5JyDCRFhh2bgvTx1dmjeLyartzILIYCIPDnnvbnS24yFEP15
+      DctECAEe8WEgeK9gsaYPxroxoizVXPTGEjFfQgi9bRuILL4LHM+XvmAxGyGG3g4dlSfwAgLg
+      IoabN2+M+jaCOJfQKhBhNCQAwmhIAITRkAAIoyEBEEZDAiCMhgRAGA0JgDAaEgBhNCQAwmhG
+      t0NLH7/+9BN4VBuXuASM7AVaf/o16i0bzY6LTIJTcdx+H1Qct58nLnFx3LkbtxFLTyIVF/2f
+      oKfiuFQc90SeuMTFca1YHNfmFkZ9G0GcS+gmmDAaEgBhNCQAwmhIAITRkAAIoyEBEEZDAiCM
+      hgRAGA0JgDAaEgBhNCMLwHdtLK+sUXFc4lIwshfIdhzEfBs120cuzqPrO0rVdXNqS/mpZxyS
+      4VtIKaF8P7K+47PuyDBrlZQS8H1A6wbt5SE17Sf60Lssu2ONroMahezlEVUbdJg+fN/X7xM1
+      fAyda7UfI6KWapRjFTg+NqLqeg6KMfxY9R/WowugWYdtTeBqTKBrbNTVsQTAGBhjOvNjb5OI
+      xl57VD3NYWMgIka3iWm7YP2N+v8LjXGc6wvmOXAbNlQfke3DxOhto91xR2M9xT4ZFGPwXByP
+      NXIkA46/kQWQTGeQcGrwlYLFePQgWNfiq7MhA+zY+quba9bdxo8YxVEM3WcaYwyMc0htiG4f
+      ijFtVeWoAqvP5qlOc3D2YkRt023Xf3r3Y0SomXMOFvGpyDiLHC9DdJ4Mw8+X9uhl0TmciDHg
+      +Iuaz5EFMJHOYSGdG/VtBHEuoVUgwmhIAITRkAAIoyEBEEZDAiCMhgRAGA0JgDCakQXg2U0s
+      PV0hLxBxKRhZAJulHRSTwH4rumoXQVwERhZA3GLYKFeQsAZ4PQjiAjCyFeLqwnVMzXqIx0d+
+      K0GcO5jSe28jOfoZeikl7PIB/FYnsE28kIM1mQFzHah6NRiEC7BCsft3ZT88wewkJBfgngvV
+      rIfE4FDZfNcUVa+EW3hTWUjOwZ0O4NjB9lgCMpEEVxII6wMAcoWuhdjpACFGMhZPQHEOBgXV
+      Cc4FALCJFADAdsNtwDFLgLNueNcLWoE5Z4hbAgqA7YRfgibjFpRScH0ZagO2LAHRc2J2NDES
+      cQsMQNuVcEMKkSZjHDEO+ApoOUFjHudANmFBSomGI0N3STohwKFg+wqOF9wgbjEkRNfsVut4
+      p4qhwNCww63VLyyAI6SUka69Qe1KKSilThVjUPt5iXE01VHuxHHEGMc+uSj79dQCeJbK7hbW
+      Snu4ee8eMmGXSNLF4uISEtlpXJ+fDb5/fxt1WyCONsqVDh7cv3PC6Op1Gnj85BtMFmZQPSzj
+      6it3UcwlTsRQ0sc3T5bQlgIP7t4O9NGoHmC32sYEd7FXd/HGvdsBM+3a8hLa0oLlddCWFh7c
+      Oxmnul/GaqmMqXwWe5UWvvvgLvgzB6T0bCwtLSGRyqJVO0SquIAbc9MnYuztrMBlRfjtMhoO
+      x+u3Xz2RR7t+iKcra5ienUOj3cGtG995LkuFrfVV7Dc9FCYYag7D3ds3gzGWV5GbmkG1Vsfr
+      d+4gbp08GA5313DYisPvHCCRmcYrIftlZ3MVdVfgtRsLgbmSThtfLW/iziuz+PrJGm69fh8T
+      8ZN9HO1Xy29is1zF2+++BRES4+a1ApZWNrFw4w6mcskTMda+WUJHxXG1kEC5JnHrxtyJ9tpB
+      GcubZUxl06g5Evdv3wx8SJTWFsGSRextl3D9tTvIpRMv93sAx7Hh2B34Oq85jyGdjMHV1H3P
+      F4tg0kc2k4FtBy9VrGQGMeVCJFLg0gm7EgHjAgvXZlAoXgntIzM5hRjvfjpVd3YQdrGSz08h
+      m8lgbm4WxZngAZHOZOA6Nhq2xLVcCp3n8uBWAsmYAKwUilNTmJ3OB2JMX5mG73jI5wvIZNKB
+      9kQqg1w2h8lCEcnQBQeGTCYNx3EwmZ9CVhMDvg3X9SA9D95zdfKVdFEq76LTslHI55FKJQMx
+      AGB3dxd2uxV6ScXjE5hMJ1Ep78AB0GoHZzRfnAaTPq7Oz6NYnMLzRdWPYviuA9ux4bjBy6p8
+      oYBMOomNrR3Y7VagPZ3NIZfNQikJ33ECz4a47Tr2anXsLa+iqYBmq93tO3TEL4gQMSQSMf3j
+      ja6NRtuF0NSE39/ZQam0hb1KFfGYFRhEp1mFx+No1w4hRRKQ4UI6bLqYm86GttUOyiiVtsFi
+      CWRnZhDc5QqrK8uwbRf1povZYvDZh1q1glgsjgkLKNVaSD43HM9poW1LcKagRBypkLPh9sYW
+      dnZ3sLyyAtt2Au2Vcgn79RZqB2Vslkpodp7/1QGFarWGmCWwutrN93ma9SpYLAmLC3Cmgt/d
+      KIVcNg/ld7C6XoLrhs/nzMxM79HXIF6niVKpBC+eRgLhj33ul7dRKm2hUq1g5uq1YAy7G2O/
+      1kYimQAPPPCjsNqbp1xuMvRJta2NdTRbHcQSCUjfD+TKuIVcOoPUdBEZzvp5/j8BF7VIZYGd
+      xQAAAABJRU5ErkJggg==
+    </thumbnail>
+  </thumbnails>
+</workbook>
