@@ -38,6 +38,9 @@ const About: React.FC = () => {
             <strong>Power BI</strong> using Power Query (M language and Azure SQL Server)
           </li>
           <li style={{ marginBottom: "0.5rem" }}>
+            <strong>Tableau</strong> using OAuth 4
+          </li>
+          <li style={{ marginBottom: "0.5rem" }}>
             Developed as a <strong>Docker container image</strong> using <strong>Docker Desktop</strong>
           </li>
           <li style={{ marginBottom: "0.5rem" }}>

@@ -5,6 +5,7 @@ import WinningPicks from "../../features/winningPicks/WinningPicks";
 import About from "../../features/about/About";
 import ErrorPage from "../../pages/ErrorPage";
 import PowerBIReport from "../../components/PowerBI"
+import TableauReport from "../../components/Tableau"
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ export const router = createBrowserRouter([
       {
         path: 'powerbi-report',
         element: <PowerBIReport />,
+      },
+      {
+        path: 'tableau-report',
+        element: <TableauReport />
       }
     ]
   }
