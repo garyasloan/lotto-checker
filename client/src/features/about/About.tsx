@@ -47,6 +47,12 @@ const About: React.FC = () => {
             Production version built and deployed to <strong>Azure Container Apps</strong> via <strong>CI/CD</strong> using{" "}
             <strong>GitHub Actions</strong> in conjunction with <strong>GitHub Container Registry</strong>
           </li>
+          <li style={{ marginBottom: "0.5rem" }}>
+            Source code for this project is available for review in my{" "}
+            <a href="https://github.com/garyasloan/lotto-checker" target="_blank" rel="noopener noreferrer">
+              GitHub Repository
+            </a>
+          </li>
         </ul>
       </section>
 
