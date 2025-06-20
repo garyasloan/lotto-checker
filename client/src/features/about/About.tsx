@@ -4,7 +4,7 @@ const About: React.FC = () => {
   return (
     <div className="min-h-screen bg-white text-gray-900 p-6 flex flex-col items-center justify-center space-y-10">
       <section className="max-w-4xl w-full">
-        <h1 className="text-4xl font-bold mb-6 text-center">This site uses .NET Core, REACT and Azure</h1>
+        <h1 className="text-4xl font-bold mb-6 text-center">This site uses .NET Core, C#, REACT and Azure</h1>
         <ul className="list-disc list-inside text-xl space-y-8">
           <li style={{ marginBottom: "0.5rem" }}>
             <strong>"Serverless"</strong> Azure <strong>Container App</strong> hosted at: {" "}
@@ -14,7 +14,7 @@ const About: React.FC = () => {
             </div>
           </li>
           <li style={{ marginBottom: "0.5rem" }}>
-            <strong>.NET Core</strong> REST API
+            <strong>.NET Core</strong> REST API written in C#
           </li>
           <li style={{ marginBottom: "0.5rem" }}>
             <strong>Entity Framework Core (EF Core)</strong> ORM
