@@ -33,12 +33,17 @@ export default function NavBar() {
       <AppBar position="static">
         <Container maxWidth="xl">
           <Toolbar sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
-            <MenuItem component={NavLink} to="/super-lotto" sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+            <MenuItem component={NavLink} to="/super-lotto" sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", textDecoration: "none" }}>
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <img src={logo} alt="Site Logo" style={{ width: 36, height: 36, marginRight: 8 }} />
-                <Typography variant="h5" fontWeight="bold" noWrap>
-                  Lotto Checker <Box component="span" sx={{ fontSize: '0.65em', fontWeight: 'normal' }}>by Gary Sloan</Box>
-                </Typography>
+                <Box>
+                  <Typography variant="h5" fontWeight="bold" noWrap>
+                    Lotto Checker
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.85em', fontWeight: 'normal', marginTop: '-0.25rem' }}>
+                    by Gary Sloan
+                  </Typography>
+                </Box>
               </Box>
             </MenuItem>
             {isMobile ? (
