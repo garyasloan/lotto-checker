@@ -1,3 +1,4 @@
+using Microsoft.OpenApi.Models;
 using API.Data;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,13 @@ using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// 🔧 Add Swagger only in development
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
 
 string[] xmlMediaTypes =
 {
@@ -101,6 +109,17 @@ app.Use(async (context, next) =>
         await context.Response.WriteAsync("UNHANDLED EXCEPTION:\n" + ex);
     }
 });
+
+// 🔧 Enable Swagger UI in development only
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Lotto API V1");
+        c.RoutePrefix = "swagger";
+    });
+}
 
 app.UseCors("AllowClient");
 app.UseStaticFiles();
