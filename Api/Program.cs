@@ -11,7 +11,7 @@ using Microsoft.OData.ModelBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔧 Add Swagger only in development
+//  Add Swagger only in development
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddEndpointsApiExplorer();
@@ -110,7 +110,7 @@ app.Use(async (context, next) =>
     }
 });
 
-// 🔧 Enable Swagger UI in development only
+// Enable Swagger UI in development only
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -128,7 +128,7 @@ app.UseRouting();
 
 app.MapControllers();
 
-// ✅ Custom EDMX metadata override to ensure Tableau compatibility
+// Custom EDMX metadata override to ensure Tableau compatibility
 app.MapGet("/odata/$metadata", async context =>
 {
     context.Response.StatusCode = 200;
