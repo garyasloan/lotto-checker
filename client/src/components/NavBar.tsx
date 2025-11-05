@@ -38,7 +38,7 @@ export default function NavBar() {
                 <img src={logo} alt="Site Logo" style={{ width: 36, height: 36, marginRight: 8 }} />
                 <Box>
                   <Typography variant="h5" fontWeight="bold" noWrap>
-                    Lotto Checker
+                    Lotto Checker&nbsp;©
                   </Typography>
                   <Typography sx={{ fontSize: '0.85em', fontWeight: 'normal', marginTop: '-0.25rem' }}>
                     by Gary Sloan
