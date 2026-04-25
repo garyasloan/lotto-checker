@@ -11,7 +11,7 @@ using Microsoft.OData.ModelBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//  Add Swagger only in development
+// Add Swagger only in development
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddEndpointsApiExplorer();
@@ -34,7 +34,9 @@ var modelBuilder = new ODataConventionModelBuilder
     Namespace = "Lotto",
     ContainerName = "LottoContainer"
 };
+
 modelBuilder.EntitySet<NumberOccurrenceDTO>("NumberOccurrences");
+
 IEdmModel edmModel = modelBuilder.GetEdmModel();
 
 builder.Services.AddControllers(options =>
@@ -45,7 +47,8 @@ builder.Services.AddControllers(options =>
         {
             if (!outputFormatter.SupportedMediaTypes.Contains(mediaType))
             {
-                outputFormatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(mediaType));
+                outputFormatter.SupportedMediaTypes.Add(
+                    MediaTypeHeaderValue.Parse(mediaType));
             }
         }
     }
@@ -56,7 +59,8 @@ builder.Services.AddControllers(options =>
         {
             if (!inputFormatter.SupportedMediaTypes.Contains(mediaType))
             {
-                inputFormatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(mediaType));
+                inputFormatter.SupportedMediaTypes.Add(
+                    MediaTypeHeaderValue.Parse(mediaType));
             }
         }
     }
@@ -73,22 +77,26 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"), sql =>
-    {
-        sql.CommandTimeout(60);
-        sql.EnableRetryOnFailure();
-    }));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("Default"),
+        sql =>
+        {
+            sql.CommandTimeout(60);
+            sql.EnableRetryOnFailure();
+        }));
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowClient", policy =>
     {
-policy.WithOrigins(
-    "https://www.lotto-checker.com",
-    "https://lotto-checker-app.graycoast-45c543b1.westus2.azurecontainerapps.io",
-    "https://localhost:5173")
-    .AllowAnyHeader()
-    .AllowAnyMethod();
+        policy.WithOrigins(
+                "https://www.lotto-checker.com",
+                "https://www.lotto-checker-app.graycoast-45c543b1.westus2.azurecontainerapps.io",
+                "https://lotto-checker-app.graycoast-45c543b1.westus2.azurecontainerapps.io",
+                "https://localhost:5173"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
@@ -106,7 +114,8 @@ app.Use(async (context, next) =>
     {
         context.Response.StatusCode = 500;
         context.Response.ContentType = "text/plain";
-        await context.Response.WriteAsync("UNHANDLED EXCEPTION:\n" + ex);
+        await context.Response.WriteAsync(
+            "UNHANDLED EXCEPTION:\n" + ex);
     }
 });
 
@@ -114,19 +123,27 @@ app.Use(async (context, next) =>
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
+
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Lotto API V1");
+        c.SwaggerEndpoint(
+            "/swagger/v1/swagger.json",
+            "Lotto API V1");
+
         c.RoutePrefix = "swagger";
     });
 }
 
-app.UseStaticFiles();
 app.UseRouting();
+
 app.UseCors("AllowClient");
+
 app.UseAuthorization();
 
+app.UseStaticFiles();
+
 app.MapGet("/health", () => Results.Ok("Healthy"));
+
 app.MapControllers();
 
 // Custom EDMX metadata override to ensure Tableau compatibility
@@ -135,12 +152,16 @@ app.MapGet("/odata/$metadata", async context =>
     context.Response.StatusCode = 200;
     context.Response.ContentType = "application/xml";
 
-    await using var outputStream = context.Response.BodyWriter.AsStream();
-    using var xmlWriter = System.Xml.XmlWriter.Create(outputStream, new System.Xml.XmlWriterSettings
-    {
-        Async = true,
-        Indent = true
-    });
+    await using var outputStream =
+        context.Response.BodyWriter.AsStream();
+
+    using var xmlWriter = System.Xml.XmlWriter.Create(
+        outputStream,
+        new System.Xml.XmlWriterSettings
+        {
+            Async = true,
+            Indent = true
+        });
 
     if (!Microsoft.OData.Edm.Csdl.CsdlWriter.TryWriteCsdl(
             edmModel,
@@ -149,7 +170,10 @@ app.MapGet("/odata/$metadata", async context =>
             out var errors))
     {
         context.Response.StatusCode = 500;
-        await context.Response.WriteAsync("Failed to generate metadata XML.");
+
+        await context.Response.WriteAsync(
+            "Failed to generate metadata XML.");
+
         return;
     }
 
@@ -157,18 +181,26 @@ app.MapGet("/odata/$metadata", async context =>
 });
 
 app.MapWhen(
-    context => !context.Request.Path.StartsWithSegments("/api") &&
-               !context.Request.Path.StartsWithSegments("/odata") &&
-               !context.Request.Path.StartsWithSegments("/edmx"),
-    builder => builder.Run(async context =>
-    {
-        context.Response.ContentType = "text/html";
-        await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
-    }));
+    context =>
+        !context.Request.Path.StartsWithSegments("/api") &&
+        !context.Request.Path.StartsWithSegments("/odata") &&
+        !context.Request.Path.StartsWithSegments("/edmx"),
+    builder =>
+        builder.Run(async context =>
+        {
+            context.Response.ContentType = "text/html";
+
+            await context.Response.SendFileAsync(
+                Path.Combine(
+                    app.Environment.WebRootPath,
+                    "index.html"));
+        }));
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var db =
+        scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
     db.Database.Migrate();
 }
 
