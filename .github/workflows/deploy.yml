@@ -75,4 +75,4 @@ jobs:
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --image ${{ env.IMAGE_NAME }} \
             --set-env-vars "FORCE_RESTART=$(date -Iseconds)"
-# retry deployment            
+# retry after registry auth fix
