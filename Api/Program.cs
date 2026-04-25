@@ -83,12 +83,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowClient", policy =>
     {
-        policy.WithOrigins(
-                "https://www.lotto-checker.com",
-                "https://lotto-checker-app.wittyglacier-91c7b4e8.westus2.azurecontainerapps.io",
-                "https://localhost:5173")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+policy.WithOrigins(
+    "https://www.lotto-checker.com",
+    "https://lotto-checker-app.graycoast-45c543b1.westus2.azurecontainerapps.io",
+    "https://localhost:5173")
+    .AllowAnyHeader()
+    .AllowAnyMethod();
     });
 });
 
@@ -121,11 +121,12 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseCors("AllowClient");
 app.UseStaticFiles();
-app.UseAuthorization();
 app.UseRouting();
+app.UseCors("AllowClient");
+app.UseAuthorization();
 
+app.MapGet("/health", () => Results.Ok("Healthy"));
 app.MapControllers();
 
 // Custom EDMX metadata override to ensure Tableau compatibility
