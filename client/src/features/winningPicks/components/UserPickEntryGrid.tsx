@@ -260,12 +260,25 @@ export default function UserPickEntryGrid() {
 
   function CustomFooter() {
     return (
-      <GridFooterContainer sx={{ justifyContent: 'space-between', px: 2 }}>
+      <GridFooterContainer
+        sx={{
+          justifyContent: 'space-between',
+          px: isCompact ? 1 : 2,
+          gap: 0.5,
+          '& .MuiTablePagination-root': { minWidth: 0, flex: '0 1 auto' },
+          '& .MuiTablePagination-toolbar': { paddingLeft: 0, paddingRight: 0 },
+        }}
+      >
         <Button
           variant="contained"
           onClick={handleAdd}
           size={isCompact ? 'small' : 'medium'}
-          sx={isCompact ? { fontSize: '0.65rem', px: 1, py: 0.5 } : {}}
+          sx={{
+            ...(isCompact ? { fontSize: '0.65rem', px: 1, py: 0.5 } : {}),
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            minWidth: isCompact ? 84 : 90,
+          }}
         >
           Add Pick
         </Button>
